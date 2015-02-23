@@ -47,7 +47,19 @@ tasks:
 You can use livereload feature.
 
 ```html
-<script src="http://localhost:35730/livereload.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script src="http://localhost:35730/livereload.js"></script>
+  <script src="/assets/app.min.js"></script>
+  <title>Your App</title>
+</head>
+<body>
+<!-- Your Code -->  
+</body>
+</html>
+<body></body>
 ```
 
 ## Usage
