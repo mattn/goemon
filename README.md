@@ -39,6 +39,18 @@ tasks:
   - :livereload /
 ```
 
+* `match` is wildcard. You can use `./foo/bar/**/*.js` like a shell.
+* `commands` is list of commands to run. `:XXX` is internal command.
+
+| internal command  |           behavior          |
+|-------------------|-----------------------------|
+| :livereload /path | reload `path`               |
+| :jsmin            | minify-js(work in progress) |
+| :restart          | restart app                 |
+
+Currently, `:jsmin` is workin progress. So you should `mimifyjs` command to do it.
+For example, configuration in above works as below.
+
 |     pattern      |             behavior            |
 |------------------|---------------------------------|
 | ./assets/\*.css  | reload page                     |
