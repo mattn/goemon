@@ -62,6 +62,11 @@ $ goemon go run web.go
 ```
 $ go get github.com/mattn/goemon/cmd/goemon
 ```
+If you want to minify js, install minifyjs live below.
+
+```
+$ npm install -g minifyjs
+```
 
 ## License
 
