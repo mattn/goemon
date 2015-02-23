@@ -11,7 +11,8 @@ When you update js files, the page should be reloaded. When you update go files,
 
 ```
 +---assets
-|   +- foo.js
+|   +- index.html
+|   +- app.js
 +- web.go
 ```
 
@@ -40,6 +41,14 @@ tasks:
 | ./assets/\*.js   | minify js, reload page          |
 | ./assets/\*.html | reload page                     |
 | ./assets/\*.go   | build, restart app, reload page |
+
+# LiveReload
+
+You can use livereload feature.
+
+```html
+<script src="http://localhost:35730/livereload.js"></script>
+```
 
 ## Usage
 
