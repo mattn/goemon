@@ -26,6 +26,7 @@ When you update js files, the page should be reloaded. When you update go files,
 ## Usage
 
 ```
+$ goemon -g > goemon.yml
 $ goemon go run web.go
 ```
 
