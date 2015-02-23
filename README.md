@@ -12,6 +12,7 @@ If you updated js files, the page should be reloaded. If you updated go files, t
 ```
 +---assets
 |   +- index.html
+|   +- app.css
 |   +- app.js
 +- web.go
 ```
