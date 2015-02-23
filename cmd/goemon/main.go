@@ -13,6 +13,9 @@ tasks:
   commands:
   - minifyjs -m -i ${GOEMON_TARGET_FILE} > ${GOEMON_TARGET_DIR}/${GOEMON_TARGET_NAME}.min.js
   - :livereload /
+- match: './assets/*.css'
+  commands:
+  - :livereload /
 - match: './assets/*.html'
   commands:
   - :livereload /
