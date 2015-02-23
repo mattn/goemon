@@ -59,7 +59,6 @@ You can use livereload feature.
 <!-- Your Code -->  
 </body>
 </html>
-<body></body>
 ```
 
 ## Usage
