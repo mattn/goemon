@@ -5,7 +5,7 @@
 [Wikipedia](http://en.wikipedia.org/wiki/Wikipedia:Text_of_Creative_Commons_Attribution-ShareAlike_3.0_Unported_License) CC AA3.0 
 
 Speed up your development.
-When you update js files, the page should be reloaded. When you update go files, application should be recompiled, and run it again. Also the page should be reloaded
+If you updated js files, the page should be reloaded. If you updated go files, the app should be recompiled, and should be restarted. And also, the page should be reloaded
 
 ## Expected directory structure
 
