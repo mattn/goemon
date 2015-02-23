@@ -38,6 +38,7 @@ tasks:
 
 |     pattern      |             behavior            |
 |------------------|---------------------------------|
+| ./assets/\*.css  | reload page                     |
 | ./assets/\*.js   | minify js, reload page          |
 | ./assets/\*.html | reload page                     |
 | ./assets/\*.go   | build, restart app, reload page |
