@@ -17,6 +17,13 @@ If you updated js files, the page should be reloaded. If you updated go files, t
 +- web.go
 ```
 
+## Usage
+
+```
+$ goemon -g > goemon.yml
+$ goemon go run web.go
+```
+
 ## Default configuration
 
 ```yaml
@@ -93,13 +100,6 @@ import (
 
 And `go build`.
 
-
-## Usage
-
-```
-$ goemon -g > goemon.yml
-$ goemon go run web.go
-```
 
 ## Installation
 
