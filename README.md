@@ -98,7 +98,7 @@ import (
 ^D
 ```
 
-And `go build`.
+Then `go build`. You don't need to use `goemon` command.
 
 
 ## Installation
