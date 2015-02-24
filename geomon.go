@@ -57,7 +57,11 @@ func compilePattern(pattern string) (*regexp.Regexp, error) {
 	rs := []rune(pattern)
 	for i := 0; i < len(rs); i++ {
 		if rs[i] == '/' {
-			buf.WriteRune(rs[i])
+			if runtime.GOOS == "windows" {
+				buf.WriteString(`[/\\]`)
+			} else {
+				buf.WriteRune(rs[i])
+			}
 		} else if rs[i] == '*' {
 			if i < len(rs)-1 && rs[i+1] == '*' {
 				buf.WriteString(`.*`)
