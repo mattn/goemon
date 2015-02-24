@@ -44,6 +44,7 @@ type task struct {
 }
 
 type conf struct {
+	Command    string
 	LiveReload string  `yaml:"livereload"`
 	Tasks      []*task `yaml:"tasks"`
 }
@@ -202,24 +203,12 @@ func (g *goemon) task(event fsnotify.Event) {
 }
 
 func (g *goemon) watch() error {
-	fn, err := filepath.Abs(g.File)
-	if err != nil {
-		return err
-	}
-	b, err := ioutil.ReadFile(fn)
-	if err != nil {
-		return err
-	}
-	err = yaml.Unmarshal(b, &g.conf)
-	if err != nil {
-		return err
-	}
-
+	var err error
 	g.fsw, err = fsnotify.NewWatcher()
 	if err != nil {
 		return err
 	}
-	g.fsw.Add(fn)
+	g.fsw.Add(g.File)
 
 	root, err := filepath.Abs(".")
 	if err != nil {
@@ -264,7 +253,7 @@ func (g *goemon) watch() error {
 	for {
 		select {
 		case event := <-g.fsw.Events:
-			if event.Name == fn {
+			if event.Name == g.File {
 				return nil
 			}
 			g.task(event)
@@ -317,7 +306,36 @@ func NewWithArgs(args []string) *goemon {
 	}
 }
 
+func (g *goemon) load() error {
+	fn, err := filepath.Abs(g.File)
+	if err != nil {
+		return err
+	}
+	g.File = fn
+	b, err := ioutil.ReadFile(fn)
+	if err != nil {
+		return err
+	}
+	err = yaml.Unmarshal(b, &g.conf)
+	if err != nil {
+		return err
+	}
+	if len(g.Args) == 0 && g.conf.Command != "" {
+		if runtime.GOOS == "windows" {
+			g.Args = []string{"cmd", "/c", g.conf.Command}
+		} else {
+			g.Args = []string{"sh", "-c", g.conf.Command}
+		}
+	}
+	return nil
+}
+
 func (g *goemon) Run() *goemon {
+	err := g.load()
+	if err != nil {
+		g.Logger.Println(err)
+	}
+
 	go func() {
 		g.Logger.Println("loading", g.File)
 		for {
@@ -327,6 +345,11 @@ func (g *goemon) Run() *goemon {
 				time.Sleep(time.Second)
 			}
 			g.Logger.Println("reloading", g.File)
+			err = g.load()
+			if err != nil {
+				g.Logger.Println(err)
+				time.Sleep(time.Second)
+			}
 		}
 	}()
 
