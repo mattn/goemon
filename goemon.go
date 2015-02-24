@@ -106,20 +106,22 @@ func (g *goemon) jsmin(name string) {
 }
 
 func (g *goemon) terminate() error {
-	if err := g.cmd.Process.Signal(os.Interrupt); err != nil {
-		g.Logger.Println(err)
-	} else {
-		cd := 5
-		for cd > 0 {
-			if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
-				break
+	if g.cmd != nil && g.cmd.Process != nil {
+		if err := g.cmd.Process.Signal(os.Interrupt); err != nil {
+			g.Logger.Println(err)
+		} else {
+			cd := 5
+			for cd > 0 {
+				if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
+					break
+				}
+				time.Sleep(time.Second)
+				cd--
 			}
-			time.Sleep(time.Second)
-			cd--
 		}
-	}
-	if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
-		g.cmd.Process.Kill()
+		if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
+			g.cmd.Process.Kill()
+		}
 	}
 	return nil
 }
