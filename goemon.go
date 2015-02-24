@@ -106,10 +106,19 @@ func (g *goemon) jsmin(name string) {
 }
 
 func (g *goemon) terminate() error {
-	if g.lrc != nil {
-		g.lrc.Close()
+	if err := g.cmd.Process.Signal(os.Interrupt); err != nil {
+		g.Logger.Println(err)
+	} else {
+		cd := 5
+		for cd > 0 {
+			if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
+				break
+			}
+			time.Sleep(time.Second)
+			cd--
+		}
 	}
-	if g.cmd != nil && g.cmd.Process != nil {
+	if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
 		g.cmd.Process.Kill()
 	}
 	return nil
@@ -258,7 +267,9 @@ func (g *goemon) watch() error {
 			}
 			g.task(event)
 		case err := <-g.fsw.Errors:
-			g.Logger.Println("error:", err)
+			if err != nil {
+				g.Logger.Println("error:", err)
+			}
 		}
 	}
 }
@@ -294,16 +305,14 @@ func (g *goemon) livereload() error {
 func New() *goemon {
 	return &goemon{
 		File:   "goemon.yml",
-		Logger: log.New(os.Stderr, "GOEMON ", log.Ldate|log.Ltime),
+		Logger: log.New(os.Stderr, "GOEMON ", log.Ldate|log.Ltime|log.Lshortfile),
 	}
 }
 
 func NewWithArgs(args []string) *goemon {
-	return &goemon{
-		File:   "goemon.yml",
-		Args:   args,
-		Logger: log.New(os.Stderr, "GOEMON ", log.Ldate|log.Ltime),
-	}
+	g := New()
+	g.Args = args
+	return g
 }
 
 func (g *goemon) load() error {
@@ -371,8 +380,7 @@ func (g *goemon) Run() *goemon {
 			err := g.restart()
 			if err != nil {
 				g.Logger.Println(err)
-				g.Die()
-				break
+				time.Sleep(time.Second)
 			}
 			g.Logger.Println("restarting command")
 		}
@@ -388,7 +396,7 @@ func (g *goemon) Die() {
 		g.fsw.Close()
 	}
 	if g.cmd.Process != nil {
-		g.cmd.Process.Kill()
+		g.terminate()
 	}
 	g.Logger.Println("goemon terminated")
 }
