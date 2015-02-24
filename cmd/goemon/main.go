@@ -43,6 +43,8 @@ func main() {
 		case "-g":
 			fmt.Println(defaultConf)
 			return
+		case "--":
+			os.Args = os.Args[1:]
 		}
 	}
 
