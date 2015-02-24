@@ -14,14 +14,14 @@ If you updated js files, the page should be reloaded. If you updated go files, t
 |   +- index.html
 |   +- app.css
 |   +- app.js
-+- web.go
++- main.go
 ```
 
 ## Usage
 
 ```
 $ goemon -g > goemon.yml
-$ goemon go run web.go
+$ goemon go run main.go
 ```
 
 ## Default configuration
