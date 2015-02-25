@@ -2,6 +2,8 @@
 
 ![](https://raw.githubusercontent.com/mattn/goemon/master/data/goemon.png)
 
+*Go* *E*xtensible *Mon*itoring
+
 [Wikipedia](http://en.wikipedia.org/wiki/Wikipedia:Text_of_Creative_Commons_Attribution-ShareAlike_3.0_Unported_License) CC AA3.0 
 
 Speed up your development.
