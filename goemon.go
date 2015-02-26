@@ -146,6 +146,26 @@ func (g *goemon) task(event fsnotify.Event) {
 								time.Sleep(time.Duration(si) * time.Microsecond)
 							}
 						}
+					case ":fizzbuzz":
+						for _, s := range ss[2:] {
+							var si int64
+							var err error
+							if si, err = strconv.ParseInt(s, 10, 64); err != nil {
+								si = 100
+							}
+							for i := int64(1); i <= si; i++ {
+								switch {
+								case i%15 == 0:
+									g.Logger.Println("FizzBuzz")
+								case i%3 == 0:
+									g.Logger.Println("Fizz")
+								case i%5 == 0:
+									g.Logger.Println("Buzz")
+								default:
+									g.Logger.Println(i)
+								}
+							}
+						}
 					case ":jsmin":
 						g.jsmin(name)
 					case ":restart":
