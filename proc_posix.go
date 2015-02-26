@@ -9,10 +9,10 @@ import (
 )
 
 func (g *goemon) spawn() error {
-	cmd := exec.Command(g.Args[0], g.Args[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	g.cmd = exec.Command(g.Args[0], g.Args[1:]...)
+	g.cmd.Stdout = os.Stdout
+	g.cmd.Stderr = os.Stderr
+	return g.cmd.Run()
 }
 
 func (g *goemon) terminate() error {
