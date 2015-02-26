@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -137,6 +138,13 @@ func (g *goemon) task(event fsnotify.Event) {
 						for _, s := range ss[2:] {
 							g.Logger.Println("reloading", s)
 							g.lrs.Reload(s)
+						}
+					case ":sleep":
+						for _, s := range ss[2:] {
+							if si, err := strconv.ParseInt(s, 10, 64); err == nil {
+								g.Logger.Println("sleeping", s+"ms")
+								time.Sleep(time.Duration(si) * time.Microsecond)
+							}
 						}
 					case ":jsmin":
 						g.jsmin(name)
