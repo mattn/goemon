@@ -37,6 +37,7 @@ type goemon struct {
 
 type task struct {
 	Match    string   `yaml:"match"`
+	Ignore   string   `yaml:"ignore"`
 	Commands []string `yaml:"commands"`
 	mre      *regexp.Regexp
 	ire      *regexp.Regexp
@@ -81,29 +82,31 @@ func compilePattern(pattern string) (*regexp.Regexp, error) {
 	return regexp.Compile(buf.String())
 }
 
-func (g *goemon) jsmin(name string) {
+func (g *goemon) jsmin(name string) bool {
 	if strings.HasSuffix(name, ".min.js") {
-		return
+		return true // ignore
 	}
 	ext := filepath.Ext(name)
 	if ext == "" {
-		return
+		return true // ignore
 	}
 	f, err := os.Open(name)
 	if err != nil {
 		g.Logger.Println(err)
-		return
+		return false
 	}
 	defer f.Close()
 	buf, err := jsmin.Minify(f)
 	if err != nil {
 		g.Logger.Println(err)
-		return
+		return false
 	}
 	err = ioutil.WriteFile(name[:len(name)-len(ext)]+".min.js", buf.Bytes(), 0644)
 	if err != nil {
 		g.Logger.Println(err)
+		return false
 	}
+	return true
 }
 
 func (g *goemon) restart() error {
@@ -114,10 +117,105 @@ func (g *goemon) restart() error {
 	return g.spawn()
 }
 
+func (t *task) match(file string) bool {
+	return (t.mre != nil && t.mre.MatchString(file)) && (t.ire == nil || !t.ire.MatchString(file))
+}
+
+func (g *goemon) internal_command(command, file string) bool {
+	ss := commandRe.FindStringSubmatch(command)
+	switch ss[1] {
+	case ":livereload":
+		for _, s := range ss[2:] {
+			g.Logger.Println("reloading", s)
+			g.lrs.Reload(s)
+		}
+		return true
+	case ":sleep":
+		for _, s := range ss[2:] {
+			si, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				g.Logger.Println(err)
+				return false
+			}
+			g.Logger.Println("sleeping", s+"ms")
+			time.Sleep(time.Duration(si) * time.Microsecond)
+		}
+		return true
+	case ":fizzbuzz":
+		for _, s := range ss[2:] {
+			si, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				g.Logger.Println(err)
+				return false
+			}
+			for i := int64(1); i <= si; i++ {
+				switch {
+				case i%15 == 0:
+					g.Logger.Println("FizzBuzz")
+				case i%3 == 0:
+					g.Logger.Println("Fizz")
+				case i%5 == 0:
+					g.Logger.Println("Buzz")
+				default:
+					g.Logger.Println(i)
+				}
+			}
+		}
+		return true
+	case ":jsmin":
+		return g.jsmin(file)
+	case ":restart":
+		g.terminate()
+		return true
+	}
+	return false
+}
+
+func (g *goemon) external_command(command, file string) bool {
+	var cmd *exec.Cmd
+	command = os.Expand(command, func(s string) string {
+		if s == "GOEMON_TARGET_FILE" {
+			return file
+		}
+		if s == "GOEMON_TARGET_BASE" {
+			return filepath.Base(file)
+		}
+		if s == "GOEMON_TARGET_DIR" {
+			return filepath.Dir(file)
+		}
+		if s == "GOEMON_TARGET_BASE" {
+			return filepath.Base(file)
+		}
+		if s == "GOEMON_TARGET_EXT" {
+			return filepath.Ext(file)
+		}
+		if s == "GOEMON_TARGET_NAME" {
+			fn := filepath.Base(file)
+			ext := filepath.Ext(file)
+			return fn[:len(fn)-len(ext)]
+		}
+		return os.Getenv(s)
+	})
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/c", command)
+	} else {
+		cmd = exec.Command("sh", "-c", command)
+	}
+	g.Logger.Println("executing", command)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		g.Logger.Println(err)
+		return false
+	}
+	return true
+}
+
 func (g *goemon) task(event fsnotify.Event) {
 	file := filepath.ToSlash(event.Name)
 	for _, t := range g.conf.Tasks {
-		if !t.mre.MatchString(file) {
+		if !t.match(file) {
 			continue
 		}
 		t.mutex.Lock()
@@ -129,84 +227,16 @@ func (g *goemon) task(event fsnotify.Event) {
 		t.mutex.Unlock()
 		g.Logger.Println(event)
 		go func(name string, t *task) {
+		loopCommand:
 			for _, command := range t.Commands {
 				switch {
 				case commandRe.MatchString(command):
-					ss := commandRe.FindStringSubmatch(command)
-					switch ss[1] {
-					case ":livereload":
-						for _, s := range ss[2:] {
-							g.Logger.Println("reloading", s)
-							g.lrs.Reload(s)
-						}
-					case ":sleep":
-						for _, s := range ss[2:] {
-							if si, err := strconv.ParseInt(s, 10, 64); err == nil {
-								g.Logger.Println("sleeping", s+"ms")
-								time.Sleep(time.Duration(si) * time.Microsecond)
-							}
-						}
-					case ":fizzbuzz":
-						for _, s := range ss[2:] {
-							var si int64
-							var err error
-							if si, err = strconv.ParseInt(s, 10, 64); err != nil {
-								si = 100
-							}
-							for i := int64(1); i <= si; i++ {
-								switch {
-								case i%15 == 0:
-									g.Logger.Println("FizzBuzz")
-								case i%3 == 0:
-									g.Logger.Println("Fizz")
-								case i%5 == 0:
-									g.Logger.Println("Buzz")
-								default:
-									g.Logger.Println(i)
-								}
-							}
-						}
-					case ":jsmin":
-						g.jsmin(name)
-					case ":restart":
-						g.terminate()
+					if !g.internal_command(command, file) {
+						break loopCommand
 					}
 				default:
-					var cmd *exec.Cmd
-					command = os.Expand(command, func(s string) string {
-						if s == "GOEMON_TARGET_FILE" {
-							return name
-						}
-						if s == "GOEMON_TARGET_BASE" {
-							return filepath.Base(name)
-						}
-						if s == "GOEMON_TARGET_DIR" {
-							return filepath.Dir(name)
-						}
-						if s == "GOEMON_TARGET_BASE" {
-							return filepath.Base(name)
-						}
-						if s == "GOEMON_TARGET_EXT" {
-							return filepath.Ext(name)
-						}
-						if s == "GOEMON_TARGET_NAME" {
-							fn := filepath.Base(name)
-							ext := filepath.Ext(name)
-							return fn[:len(fn)-len(ext)]
-						}
-						return os.Getenv(s)
-					})
-					if runtime.GOOS == "windows" {
-						cmd = exec.Command("cmd", "/c", command)
-					} else {
-						cmd = exec.Command("sh", "-c", command)
-					}
-					g.Logger.Println("executing", command)
-					cmd.Stdout = os.Stdout
-					cmd.Stderr = os.Stderr
-					err := cmd.Run()
-					if err != nil {
-						g.Logger.Println(err)
+					if !g.external_command(command, file) {
+						break loopCommand
 					}
 				}
 			}
@@ -234,33 +264,25 @@ func (g *goemon) watch() error {
 	g.fsw.Add(root)
 	dup[root] = true
 
-	for _, t := range g.conf.Tasks {
-		if t.Match != "" {
-			t.mre, err = compilePattern(t.Match)
-			if err != nil {
-				g.Logger.Println(err)
-			}
+	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if info == nil {
+			return err
 		}
-		err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-			if info == nil {
-				return err
-			}
-			name, err := filepath.Abs(info.Name())
-			if err != nil {
-				g.Logger.Println(err)
-			}
-			if !info.IsDir() {
-				return nil
-			}
-			if _, ok := dup[name]; !ok {
-				g.fsw.Add(name)
-				dup[name] = true
-			}
-			return nil
-		})
+		name, err := filepath.Abs(info.Name())
 		if err != nil {
 			g.Logger.Println(err)
 		}
+		if !info.IsDir() {
+			return nil
+		}
+		if _, ok := dup[name]; !ok {
+			g.fsw.Add(name)
+			dup[name] = true
+		}
+		return nil
+	})
+	if err != nil {
+		g.Logger.Println(err)
 	}
 
 	g.Logger.Println("goemon loaded", g.File)
@@ -340,6 +362,24 @@ func (g *goemon) load() error {
 			g.Args = []string{"cmd", "/c", g.conf.Command}
 		} else {
 			g.Args = []string{"sh", "-c", g.conf.Command}
+		}
+	}
+	for _, t := range g.conf.Tasks {
+		if t.Match == "" {
+			continue
+		}
+		t.mre, err = compilePattern(t.Match)
+		if err != nil {
+			g.Logger.Println(err)
+			continue
+		}
+		if t.Ignore != "" {
+			t.ire, err = compilePattern(t.Ignore)
+			if err != nil {
+				g.Logger.Println(err)
+			}
+		} else {
+			t.ire = nil
 		}
 	}
 	return nil

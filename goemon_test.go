@@ -38,9 +38,12 @@ func TestJsmin(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(dir)
+
 	g := New()
 	f := filepath.Join(dir, "foo.js")
-	g.jsmin(f)
+	if g.jsmin(f) {
+		t.Fatal("Should not be succeeded")
+	}
 	_, err = os.Stat(filepath.Join(dir, "foo.min.js"))
 	if err == nil {
 		t.Fatalf("Should be fail for non-exists file: %v", err)
@@ -52,10 +55,126 @@ func TestJsmin(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	g.jsmin(f)
+	if !g.jsmin(f) {
+		t.Fatal("Should be succeeded")
+	}
 	_, err = os.Stat(filepath.Join(dir, "foo.min.js"))
 	if err != nil {
 		t.Fatal(t)
 	}
-	// TODO: more tests
+}
+
+func TestSpawn(t *testing.T) {
+	dir, err := ioutil.TempDir(os.TempDir(), "goemon")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	g := New()
+	g.Args = []string{"go", "version"}
+
+	err = g.terminate()
+	if err != nil {
+		t.Fatal("Should be succeeded", err)
+	}
+	err = g.spawn()
+	if err != nil {
+		t.Fatal("Should be succeeded", err)
+	}
+}
+
+func TestLoad(t *testing.T) {
+	dir, err := ioutil.TempDir(os.TempDir(), "goemon")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	tmp, err := ioutil.TempFile(dir, "goemon")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(``), 0644)
+
+	g := New()
+	g.File = tmp.Name()
+	err = g.load()
+	if err != nil {
+		t.Fatal("Should be succeeded", err)
+	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(`asdfasdf`), 0644)
+
+	err = g.load()
+	if err == nil {
+		t.Fatal("Should not be succeeded")
+	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(`
+tasks:
+- match: './assets/*.js'
+  commands:
+`), 0644)
+
+	err = g.load()
+	if err != nil {
+		t.Fatal("Should be succeeded")
+	}
+
+	if len(g.conf.Tasks) != 1 {
+		t.Fatal("Should have a task at least")
+	}
+}
+
+func TestMatch(t *testing.T) {
+	dir, err := ioutil.TempDir(os.TempDir(), "goemon")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	tmp, err := ioutil.TempFile(dir, "goemon")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(`
+tasks:
+- match: './assets/*.js'
+  commands:
+`), 0644)
+
+	g := New()
+	g.File = tmp.Name()
+	err = g.load()
+	if err != nil {
+		t.Fatal("Should be succeeded", err)
+	}
+
+	tests := []struct {
+		file   string
+		result bool
+	}{
+		{"foo", false},
+		{"assets", false},
+		{"assets/js", false},
+		{"assets/.js", false},
+		{"assets/a.js", true},
+	}
+
+	for _, test := range tests {
+		file, _ := filepath.Abs(test.file)
+		file = filepath.ToSlash(file)
+		if g.conf.Tasks[0].match(file) {
+			if !test.result {
+				t.Fatal("Should not match:", test.file)
+			}
+		} else {
+			if test.result {
+				t.Fatal("Should be match:", test.file)
+			}
+		}
+	}
 }
