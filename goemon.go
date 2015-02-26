@@ -271,7 +271,7 @@ func (g *goemon) Run() *goemon {
 	return g
 }
 
-func (g *goemon) Die() {
+func (g *goemon) Terminate() {
 	if g.lrc != nil {
 		g.lrc.Close()
 	}
