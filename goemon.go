@@ -134,7 +134,7 @@ func (g *goemon) internal_command(command, file string) bool {
 		for _, s := range ss[2:] {
 			si, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				g.Logger.Println(err)
+				g.Logger.Println("failed to parse argument for :sleep command:", err)
 				return false
 			}
 			g.Logger.Println("sleeping", s+"ms")
@@ -145,7 +145,7 @@ func (g *goemon) internal_command(command, file string) bool {
 		for _, s := range ss[2:] {
 			si, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				g.Logger.Println(err)
+				g.Logger.Println("failed to parse argument for :fizzbuzz command:", err)
 				return false
 			}
 			for i := int64(1); i <= si; i++ {
