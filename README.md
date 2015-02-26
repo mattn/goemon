@@ -57,6 +57,8 @@ tasks:
 | :livereload /path | reload `path`               |
 | :jsmin            | minify-js(work in progress) |
 | :restart          | restart app                 |
+| :sleep 3000       | sleep 3000ms                |
+| :fizzbuzz 100     | do fizzbuzz(1 to 100)       |
 
 Currently, `:jsmin` is workin progress. So you should `mimifyjs` command to do it.
 For example, configuration in above works as below.
