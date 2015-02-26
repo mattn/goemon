@@ -107,7 +107,7 @@ func (g *goemon) jsmin(name string) {
 
 func (g *goemon) terminate() error {
 	if g.cmd != nil && g.cmd.Process != nil {
-		if err := g.cmd.Process.Signal(os.Interrupt); err != nil {
+		if err := interrupt(g.cmd.Process); err != nil {
 			g.Logger.Println(err)
 		} else {
 			cd := 5
