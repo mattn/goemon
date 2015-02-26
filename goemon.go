@@ -47,6 +47,23 @@ type conf struct {
 	Tasks      []*task `yaml:"tasks"`
 }
 
+func New() *goemon {
+	return &goemon{
+		File:   "goemon.yml",
+		Logger: log.New(os.Stderr, "GOEMON ", log.Ldate|log.Ltime|log.Lshortfile),
+	}
+}
+
+func NewWithArgs(args []string) *goemon {
+	g := New()
+	g.Args = args
+	return g
+}
+
+func Run() *goemon {
+	return New().Run()
+}
+
 func compilePattern(pattern string) (*regexp.Regexp, error) {
 	var buf bytes.Buffer
 	buf.WriteString("^")
@@ -282,20 +299,4 @@ func (g *goemon) Terminate() {
 		g.terminate()
 	}
 	g.Logger.Println("goemon terminated")
-}
-
-func Run() *goemon {
-	return New().Run()
-}
-func New() *goemon {
-	return &goemon{
-		File:   "goemon.yml",
-		Logger: log.New(os.Stderr, "GOEMON ", log.Ldate|log.Ltime|log.Lshortfile),
-	}
-}
-
-func NewWithArgs(args []string) *goemon {
-	g := New()
-	g.Args = args
-	return g
 }
