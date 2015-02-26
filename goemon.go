@@ -80,7 +80,7 @@ func compilePattern(pattern string) (*regexp.Regexp, error) {
 			}
 		} else if rs[i] == '*' {
 			if i < len(rs)-1 && rs[i+1] == '*' {
-				buf.WriteString(`.*`)
+				buf.WriteString(`.+`)
 				i++
 			} else {
 				buf.WriteString(`[^/]+`)
@@ -198,6 +198,7 @@ func (g *goemon) watch() error {
 }
 
 func (g *goemon) load() error {
+	g.conf.Tasks = []*task{}
 	fn, err := filepath.Abs(g.File)
 	if err != nil {
 		return err

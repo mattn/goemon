@@ -177,4 +177,73 @@ tasks:
 			}
 		}
 	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(`
+tasks:
+- match: './assets/*/*.js'
+  commands:
+`), 0644)
+
+	err = g.load()
+	if err != nil {
+		t.Fatal("Should be succeeded", err)
+	}
+
+	tests = []struct {
+		file   string
+		result bool
+	}{
+		{"assets/a.js", false},
+		{"assets/a/.js", false},
+		{"assets/a/foooo.js", true},
+		{"assets/a/foo/bar.js", false},
+	}
+
+	for _, test := range tests {
+		file, _ := filepath.Abs(test.file)
+		file = filepath.ToSlash(file)
+		if g.conf.Tasks[0].match(file) {
+			if !test.result {
+				t.Fatal("Should not match:", test.file)
+			}
+		} else {
+			if test.result {
+				t.Fatal("Should be match:", test.file)
+			}
+		}
+	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(`
+tasks:
+- match: './assets/*/**.js'
+  commands:
+`), 0644)
+
+	err = g.load()
+	if err != nil {
+		t.Fatal("Should be succeeded", err)
+	}
+
+	tests = []struct {
+		file   string
+		result bool
+	}{
+		{"assets/a/foooo.js", true},
+		{"assets/a/foo/bar.js", true},
+		{"assets/a/foo/baz/bar.js", true},
+	}
+
+	for _, test := range tests {
+		file, _ := filepath.Abs(test.file)
+		file = filepath.ToSlash(file)
+		if g.conf.Tasks[0].match(file) {
+			if !test.result {
+				t.Fatal("Should not match:", test.file)
+			}
+		} else {
+			if test.result {
+				t.Fatal("Should be match:", test.file)
+			}
+		}
+	}
 }
