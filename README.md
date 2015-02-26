@@ -60,7 +60,7 @@ tasks:
 | :sleep 3000       | sleep 3000ms                |
 | :fizzbuzz 100     | do fizzbuzz(1 to 100)       |
 
-Currently, `:jsmin` is workin progress. So you should `mimifyjs` command to do it.
+Currently, `:jsmin` is work in progress. So you should run `minifyjs` command to do it.
 For example, configuration in above works as below.
 
 |     pattern      |             behavior            |
@@ -110,7 +110,7 @@ Then `go build`. You don't need to use `goemon` command.
 ```
 $ go get github.com/mattn/goemon/cmd/goemon
 ```
-If you want to minify js, install minifyjs live below.
+If you want to minify js, install minifyjs like below.
 
 ```
 $ npm install -g minifyjs
