@@ -105,36 +105,12 @@ func (g *goemon) jsmin(name string) {
 	}
 }
 
-func (g *goemon) terminate() error {
-	if g.cmd != nil && g.cmd.Process != nil {
-		if err := interrupt(g.cmd.Process); err != nil {
-			g.Logger.Println(err)
-		} else {
-			cd := 5
-			for cd > 0 {
-				if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
-					break
-				}
-				time.Sleep(time.Second)
-				cd--
-			}
-		}
-		if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
-			g.cmd.Process.Kill()
-		}
-	}
-	return nil
-}
-
 func (g *goemon) restart() error {
 	if len(g.Args) == 0 {
 		return nil
 	}
 	g.terminate()
-	g.cmd = exec.Command(g.Args[0], g.Args[1:]...)
-	g.cmd.Stdout = os.Stdout
-	g.cmd.Stderr = os.Stderr
-	return g.cmd.Run()
+	return g.spawn()
 }
 
 func (g *goemon) task(event fsnotify.Event) {
