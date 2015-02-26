@@ -80,8 +80,13 @@ func compilePattern(pattern string) (*regexp.Regexp, error) {
 			}
 		} else if rs[i] == '*' {
 			if i < len(rs)-1 && rs[i+1] == '*' {
-				buf.WriteString(`.+`)
 				i++
+				if i < len(rs)-1 && rs[i+1] == '/' {
+					i++
+					buf.WriteString(`.*`)
+				} else {
+					return nil, fmt.Errorf("invalid wildcard:", pattern)
+				}
 			} else {
 				buf.WriteString(`[^/]+`)
 			}
