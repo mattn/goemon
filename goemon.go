@@ -168,16 +168,12 @@ func (g *goemon) watch() error {
 		if info == nil {
 			return err
 		}
-		name, err := filepath.Abs(info.Name())
-		if err != nil {
-			g.Logger.Println(err)
-		}
 		if !info.IsDir() {
 			return nil
 		}
-		if _, ok := dup[name]; !ok {
-			g.fsw.Add(name)
-			dup[name] = true
+		if _, ok := dup[path]; !ok {
+			g.fsw.Add(path)
+			dup[path] = true
 		}
 		return nil
 	})
