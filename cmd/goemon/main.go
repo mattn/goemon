@@ -35,6 +35,7 @@ func usage() {
 
 func main() {
 	file := ""
+	args := []string{}
 
 	switch len(os.Args) {
 	case 1:
@@ -52,13 +53,15 @@ func main() {
 				return
 			}
 			file = os.Args[2]
-			os.Args = os.Args[2:]
+			args = os.Args[3:]
 		case "--":
-			os.Args = os.Args[1:]
+			args = os.Args[2:]
+		default:
+			args = os.Args[1:]
 		}
 	}
 
-	g := goemon.NewWithArgs(os.Args[1:])
+	g := goemon.NewWithArgs(args)
 	if file != "" {
 		g.File = file
 	}
