@@ -27,12 +27,15 @@ tasks:
 `
 
 func usage() {
-	fmt.Printf("Usage of %s [command] [args...]\n", os.Args[0])
+	fmt.Printf("Usage of %s [options] [command] [args...]\n", os.Args[0])
 	fmt.Println(" goemon -g : generate default configuration")
+	fmt.Println(" goemon -c [FILE] ... : set configuration file")
 	os.Exit(1)
 }
 
 func main() {
+	file := ""
+
 	switch len(os.Args) {
 	case 1:
 		usage()
@@ -43,10 +46,21 @@ func main() {
 		case "-g":
 			fmt.Println(defaultConf)
 			return
+		case "-c":
+			if len(os.Args) == 2 {
+				usage()
+				return
+			}
+			file = os.Args[2]
+			os.Args = os.Args[2:]
 		case "--":
 			os.Args = os.Args[1:]
 		}
 	}
 
-	goemon.NewWithArgs(os.Args[1:]).Run()
+	g := goemon.NewWithArgs(os.Args[1:])
+	if file != "" {
+		g.File = file
+	}
+	g.Run()
 }
