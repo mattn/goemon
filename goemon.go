@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -68,38 +69,50 @@ func Run() *goemon {
 }
 
 func compilePattern(pattern string) (*regexp.Regexp, error) {
+	if pattern[0] == '%' {
+		return regexp.Compile(pattern[1:])
+	}
+
 	var buf bytes.Buffer
-	buf.WriteString("^")
-	if fs, err := filepath.Abs(pattern); err == nil {
-		pattern = filepath.ToSlash(fs)
-	}
-	rs := []rune(pattern)
-	for i := 0; i < len(rs); i++ {
-		if rs[i] == '/' {
-			if runtime.GOOS == "windows" {
-				buf.WriteString(`[/\\]`)
-			} else {
-				buf.WriteRune(rs[i])
-			}
-		} else if rs[i] == '*' {
-			if i < len(rs)-1 && rs[i+1] == '*' {
-				i++
-				if i < len(rs)-1 && rs[i+1] == '/' {
-					i++
-					buf.WriteString(`.*`)
-				} else {
-					return nil, fmt.Errorf("invalid wildcard:", pattern)
-				}
-			} else {
-				buf.WriteString(`[^/]+`)
-			}
-		} else if rs[i] == '?' {
-			buf.WriteString(`\S`)
+
+	for n, pat := range strings.Split(pattern, "|") {
+		if n == 0 {
+			buf.WriteString("^")
 		} else {
-			buf.WriteString(fmt.Sprintf(`[\x%x]`, rs[i]))
+			buf.WriteString("$|")
 		}
+		if fs, err := filepath.Abs(pat); err == nil {
+			pat = filepath.ToSlash(fs)
+		}
+		rs := []rune(pat)
+		for i := 0; i < len(rs); i++ {
+			if rs[i] == '/' {
+				if runtime.GOOS == "windows" {
+					buf.WriteString(`[/\\]`)
+				} else {
+					buf.WriteRune(rs[i])
+				}
+			} else if rs[i] == '*' {
+				if i < len(rs)-1 && rs[i+1] == '*' {
+					i++
+					if i < len(rs)-1 && rs[i+1] == '/' {
+						i++
+						buf.WriteString(`.*`)
+					} else {
+						return nil, fmt.Errorf("invalid wildcard:", pattern)
+					}
+				} else {
+					buf.WriteString(`[^/]+`)
+				}
+			} else if rs[i] == '?' {
+				buf.WriteString(`\S`)
+			} else {
+				buf.WriteString(fmt.Sprintf(`[\x%x]`, rs[i]))
+			}
+		}
+		buf.WriteString("$")
 	}
-	buf.WriteString("$")
+
 	return regexp.Compile(buf.String())
 }
 
