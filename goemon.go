@@ -18,6 +18,8 @@ import (
 	"time"
 )
 
+const logFlag = log.Ldate | log.Ltime | log.Lshortfile
+
 var commandRe = regexp.MustCompile(`^\s*(:[a-z]+)(?:\s+(\S+))*$`)
 
 type goemon struct {
@@ -50,7 +52,7 @@ type conf struct {
 func New() *goemon {
 	return &goemon{
 		File:   "goemon.yml",
-		Logger: log.New(os.Stderr, "GOEMON ", log.Ldate|log.Ltime|log.Lshortfile),
+		Logger: log.New(os.Stderr, "GOEMON ", logFlag),
 	}
 }
 
