@@ -1,8 +1,6 @@
 package goemon
 
 import (
-	"github.com/omeid/jsmin"
-	"github.com/omeid/livereload"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -13,6 +11,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/omeid/jsmin"
+	"github.com/omeid/livereload"
+	"github.com/tdewolff/minify"
+	"github.com/tdewolff/minify/css"
 )
 
 func (g *goemon) internal_command(command, file string) bool {
@@ -56,8 +59,8 @@ func (g *goemon) internal_command(command, file string) bool {
 			}
 		}
 		return true
-	case ":jsmin":
-		return g.jsmin(file)
+	case ":minify":
+		return g.minify(file)
 	case ":restart":
 		g.terminate()
 		return true
@@ -106,31 +109,50 @@ func (g *goemon) external_command(command, file string) bool {
 	return true
 }
 
-func (g *goemon) jsmin(name string) bool {
-	if strings.HasSuffix(name, ".min.js") {
+func (g *goemon) minify(name string) bool {
+	if strings.HasSuffix(filepath.Base(name), ".min.") {
 		return true // ignore
 	}
 	ext := filepath.Ext(name)
 	if ext == "" {
 		return true // ignore
 	}
-	f, err := os.Open(name)
+	in, err := os.Open(name)
 	if err != nil {
 		g.Logger.Println(err)
 		return false
 	}
-	defer f.Close()
-	buf, err := jsmin.Minify(f)
-	if err != nil {
-		g.Logger.Println(err)
-		return false
+	defer in.Close()
+
+	switch ext {
+	case ".js":
+
+		buf, err := jsmin.Minify(in)
+		if err != nil {
+			g.Logger.Println(err)
+			return false
+		}
+		err = ioutil.WriteFile(name[:len(name)-len(ext)]+".min.js", buf.Bytes(), 0644)
+		if err != nil {
+			g.Logger.Println(err)
+			return false
+		}
+		return true
+	case ".css":
+		out, err := os.Create(name[:len(name)-len(ext)] + ".min.css")
+		if err != nil {
+			g.Logger.Println(err)
+			return false
+		}
+		m := minify.NewMinifier()
+		m.Add("text/css", css.Minify)
+		if err := m.Minify("text/css", out, in); err != nil {
+			g.Logger.Println(err)
+			return false
+		}
+		return true
 	}
-	err = ioutil.WriteFile(name[:len(name)-len(ext)]+".min.js", buf.Bytes(), 0644)
-	if err != nil {
-		g.Logger.Println(err)
-		return false
-	}
-	return true
+	return false
 }
 
 func (g *goemon) livereload() error {

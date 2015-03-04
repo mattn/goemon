@@ -52,21 +52,21 @@ tasks:
 * `match` is wildcard. You can use `./foo/bar/**/*.js` like a shell.
 * `commands` is list of commands to run. `:XXX` is internal command.
 
-| internal command  |           behavior          |
-|-------------------|-----------------------------|
-| :livereload /path | reload `path`               |
-| :jsmin            | minify-js(work in progress) |
-| :restart          | restart app                 |
-| :sleep 3000       | sleep 3000ms                |
-| :fizzbuzz 100     | do fizzbuzz(1 to 100)       |
+| Internal Command  |             Behavior            |
+|-------------------|---------------------------------|
+| :livereload /path | reload `path`                   |
+| :minify           | minify js/css(work in progress) |
+| :restart          | restart app                     |
+| :sleep 3000       | sleep 3000ms                    |
+| :fizzbuzz 100     | do fizzbuzz(1 to 100)           |
 
-Currently, `:jsmin` is work in progress. So you should run `minifyjs` command to do it.
+Currently, `:minify` is work in progress. So you should run `minifyjs` command to do it.
 For example, configuration in above works as below.
 
-|     pattern      |             behavior            |
+|     Pattern      |             Behavior            |
 |------------------|---------------------------------|
 | ./assets/\*.css  | reload page                     |
-| ./assets/\*.js   | minify js, reload page          |
+| ./assets/\*.js   | minify js/css, reload page      |
 | ./assets/\*.html | reload page                     |
 | ./assets/\*.go   | build, restart app, reload page |
 

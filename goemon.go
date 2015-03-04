@@ -3,9 +3,6 @@ package goemon
 import (
 	"bytes"
 	"fmt"
-	"github.com/omeid/livereload"
-	"gopkg.in/fsnotify.v1"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"net"
@@ -16,6 +13,10 @@ import (
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/omeid/livereload"
+	"gopkg.in/fsnotify.v1"
+	"gopkg.in/yaml.v2"
 )
 
 const logFlag = log.Ldate | log.Ltime | log.Lshortfile
