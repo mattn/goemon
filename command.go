@@ -71,22 +71,16 @@ func (g *goemon) internal_command(command, file string) bool {
 func (g *goemon) external_command(command, file string) bool {
 	var cmd *exec.Cmd
 	command = os.Expand(command, func(s string) string {
-		if s == "GOEMON_TARGET_FILE" {
+		switch s {
+		case "GOEMON_TARGET_FILE":
 			return file
-		}
-		if s == "GOEMON_TARGET_BASE" {
+		case "GOEMON_TARGET_BASE":
 			return filepath.Base(file)
-		}
-		if s == "GOEMON_TARGET_DIR" {
-			return filepath.Dir(file)
-		}
-		if s == "GOEMON_TARGET_BASE" {
-			return filepath.Base(file)
-		}
-		if s == "GOEMON_TARGET_EXT" {
+		case "GOEMON_TARGET_DIR":
+			return filepath.ToSlash(filepath.Dir(file))
+		case "GOEMON_TARGET_EXT":
 			return filepath.Ext(file)
-		}
-		if s == "GOEMON_TARGET_NAME" {
+		case "GOEMON_TARGET_NAME":
 			fn := filepath.Base(file)
 			ext := filepath.Ext(file)
 			return fn[:len(fn)-len(ext)]
