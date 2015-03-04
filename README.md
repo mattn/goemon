@@ -21,9 +21,24 @@ If you updated js files, the page should be reloaded. If you updated go files, t
 
 ## Usage
 
+For example:
+
+### Run web server
 ```
 $ goemon -g > goemon.yml
 $ goemon go run main.go
+```
+
+### Writing markdown
+```
+$ goemon -g md > goemon.yml
+$ goemon --
+```
+
+### Writing C code
+```
+$ goemon -g c > goemon.yml
+$ goemon --
 ```
 
 ## Default configuration
