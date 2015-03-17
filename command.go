@@ -138,8 +138,8 @@ func (g *goemon) minify(name string) bool {
 			g.Logger.Println(err)
 			return false
 		}
-		m := minify.NewMinifier()
-		m.Add("text/css", css.Minify)
+		m := minify.New()
+		m.AddFunc("text/css", css.Minify)
 		if err := m.Minify("text/css", out, in); err != nil {
 			g.Logger.Println(err)
 			return false
