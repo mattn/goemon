@@ -51,6 +51,7 @@ type conf struct {
 	Tasks      []*task `yaml:"tasks"`
 }
 
+//New create new instance of goemon
 func New() *goemon {
 	return &goemon{
 		File:   "goemon.yml",
@@ -58,12 +59,14 @@ func New() *goemon {
 	}
 }
 
+//New create new instance of goemon with specified arguments by args
 func NewWithArgs(args []string) *goemon {
 	g := New()
 	g.Args = args
 	return g
 }
 
+//Run start goemon server
 func Run() *goemon {
 	return New().Run()
 }
@@ -306,6 +309,7 @@ func (g *goemon) Run() *goemon {
 	return g
 }
 
+//Terminate stop goemon server
 func (g *goemon) Terminate() {
 	if g.lrc != nil {
 		g.lrc.Close()
