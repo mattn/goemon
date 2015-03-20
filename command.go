@@ -18,7 +18,7 @@ import (
 	"github.com/tdewolff/minify/css"
 )
 
-func (g *goemon) internal_command(command, file string) bool {
+func (g *goemon) internalCommand(command, file string) bool {
 	ss := commandRe.FindStringSubmatch(command)
 	switch ss[1] {
 	case ":livereload":
@@ -68,7 +68,7 @@ func (g *goemon) internal_command(command, file string) bool {
 	return false
 }
 
-func (g *goemon) external_command(command, file string) bool {
+func (g *goemon) externalCommand(command, file string) bool {
 	var cmd *exec.Cmd
 	command = os.Expand(command, func(s string) string {
 		switch s {

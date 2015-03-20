@@ -147,11 +147,11 @@ func (g *goemon) task(event fsnotify.Event) {
 			for _, command := range t.Commands {
 				switch {
 				case commandRe.MatchString(command):
-					if !g.internal_command(command, file) {
+					if !g.internalCommand(command, file) {
 						break loopCommand
 					}
 				default:
-					if !g.external_command(command, file) {
+					if !g.externalCommand(command, file) {
 						break loopCommand
 					}
 				}

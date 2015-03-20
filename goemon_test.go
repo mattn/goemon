@@ -41,7 +41,7 @@ func TestJsmin(t *testing.T) {
 
 	g := New()
 	f := filepath.Join(dir, "foo.js")
-	if g.jsmin(f) {
+	if g.minify(f) {
 		t.Fatal("Should not be succeeded")
 	}
 	_, err = os.Stat(filepath.Join(dir, "foo.min.js"))
@@ -55,7 +55,7 @@ func TestJsmin(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !g.jsmin(f) {
+	if !g.minify(f) {
 		t.Fatal("Should be succeeded")
 	}
 	_, err = os.Stat(filepath.Join(dir, "foo.min.js"))
