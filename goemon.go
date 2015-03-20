@@ -99,7 +99,7 @@ func compilePattern(pattern string) (*regexp.Regexp, error) {
 						i++
 						buf.WriteString(`.*`)
 					} else {
-						return nil, fmt.Errorf("invalid wildcard:", pattern)
+						return nil, fmt.Errorf("invalid wildcard: %s", pattern)
 					}
 				} else {
 					buf.WriteString(`[^/]+`)
