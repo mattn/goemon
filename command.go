@@ -24,7 +24,7 @@ func (g *goemon) internalCommand(command, file string) bool {
 	case ":livereload":
 		for _, s := range ss[2:] {
 			g.Logger.Println("reloading", s)
-			g.lrs.Reload(s)
+			g.lrs.Reload(s, true)
 		}
 		return true
 	case ":sleep":
@@ -150,7 +150,7 @@ func (g *goemon) minify(name string) bool {
 }
 
 func (g *goemon) livereload() error {
-	g.lrs = livereload.New()
+	g.lrs = livereload.New("goemon")
 	defer g.lrs.Close()
 	addr := g.conf.LiveReload
 	if addr == "" {
