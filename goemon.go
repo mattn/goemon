@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -296,6 +297,14 @@ func (g *goemon) Run() *goemon {
 	}()
 
 	if len(g.Args) > 0 {
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, os.Interrupt)
+		go func() {
+			<-sig
+			g.terminate()
+			os.Exit(0)
+		}()
+
 		g.Logger.Println("starting command", g.Args)
 		for {
 			err := g.restart()
