@@ -188,12 +188,18 @@ func (g *goemon) watch() error {
 		if info == nil {
 			return err
 		}
-		if !info.IsDir() {
+		if info.IsDir() {
 			return nil
 		}
-		if _, ok := dup[path]; !ok {
-			g.fsw.Add(path)
-			dup[path] = true
+		dir := filepath.Dir(path)
+		if _, ok := dup[dir]; !ok {
+			for _, t := range g.conf.Tasks {
+				if t.match(path) {
+					g.fsw.Add(dir)
+					dup[dir] = true
+					break
+				}
+			}
 		}
 		return nil
 	})
