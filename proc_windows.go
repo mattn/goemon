@@ -45,6 +45,7 @@ func (g *goemon) terminate() error {
 	}
 	return nil
 }
+
 func interrupt(p *os.Process) error {
 	procSetConsoleCtrlHandler.Call(0, 1)
 	defer procSetConsoleCtrlHandler.Call(0, 0)
