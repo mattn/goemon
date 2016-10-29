@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/mattn/goemon"
+	"net/http"
 	"os"
 	"sort"
+
+	"github.com/mattn/goemon"
 )
 
 var defaultConf = map[string]string{
@@ -58,12 +60,15 @@ func usage() {
 	fmt.Println("")
 	fmt.Println("  Start standalone server:")
 	fmt.Println("    goemon --")
+	fmt.Println("  Start web server:")
+	fmt.Println("    goemon -a :5000")
 	os.Exit(1)
 }
 
 func main() {
 	file := ""
 	args := []string{}
+	addr := ""
 
 	switch len(os.Args) {
 	case 1:
@@ -90,6 +95,13 @@ func main() {
 				usage()
 			}
 			return
+		case "-a":
+			if len(os.Args) == 2 {
+				usage()
+				return
+			}
+			addr = os.Args[2]
+			args = os.Args[3:]
 		case "-c":
 			if len(os.Args) == 2 {
 				usage()
@@ -110,6 +122,14 @@ func main() {
 	}
 	g.Run()
 	if len(args) == 0 {
-		select {}
+		if addr != "" {
+			http.Handle("/", http.FileServer(http.Dir(".")))
+			http.ListenAndServe(addr, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				g.Logger.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
+				http.DefaultServeMux.ServeHTTP(w, r)
+			}))
+		} else {
+			select {}
+		}
 	}
 }
