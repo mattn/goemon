@@ -303,22 +303,26 @@ func (g *goemon) Run() *goemon {
 	}()
 
 	if len(g.Args) > 0 {
+		g.Logger.Println("starting command", g.Args)
 		sig := make(chan os.Signal, 1)
 		signal.Notify(sig, os.Interrupt)
-		go func() {
-			<-sig
-			g.terminate()
-			os.Exit(0)
-		}()
-
-		g.Logger.Println("starting command", g.Args)
+		errChan := make(chan error, 1)
 		for {
-			err := g.restart()
-			if err != nil {
-				g.Logger.Println(err)
-				time.Sleep(time.Second)
+			go func() {
+				err := g.restart()
+				errChan <- err
+			}()
+			select {
+			case err := <-errChan:
+				if err != nil {
+					g.Logger.Println(err)
+					time.Sleep(time.Second)
+				}
+				g.Logger.Println("restarting command")
+			case <-sig:
+				g.terminate()
+				os.Exit(0)
 			}
-			g.Logger.Println("restarting command")
 		}
 	}
 	return g
