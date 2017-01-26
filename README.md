@@ -72,6 +72,9 @@ tasks:
 | :restart          | restart app                     |
 | :sleep 3000       | sleep 3000ms                    |
 | :fizzbuzz 100     | do fizzbuzz(1 to 100)           |
+| :event :Foo       | fire event :Foo                 |
+
+`:event :Foo` fire event defined `- match: :Foo`.
 
 Currently, `:minify` is work in progress. So you should run `minifyjs` command to do it.
 For example, configuration in above works as below.
