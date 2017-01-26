@@ -29,19 +29,13 @@ func (g *goemon) terminate() error {
 	if g.cmd != nil && g.cmd.Process != nil {
 		if err := interrupt(g.cmd.Process); err != nil {
 			g.Logger.Println(err)
-		} else {
-			cd := 5
-			for cd > 0 {
-				if g.cmd.ProcessState != nil {
-					break
-				}
-				time.Sleep(time.Second)
-				cd--
-			}
+			return g.cmd.Process.Kill()
 		}
-		if g.cmd.ProcessState == nil {
+		t := time.AfterFunc(5*time.Second, func() {
 			g.cmd.Process.Kill()
-		}
+		})
+		defer t.Stop()
+		return g.cmd.Wait()
 	}
 	return nil
 }
