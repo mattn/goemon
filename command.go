@@ -16,6 +16,7 @@ import (
 	"github.com/omeid/livereload"
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/css"
+	"gopkg.in/fsnotify.v1"
 )
 
 func (g *goemon) internalCommand(command, file string) bool {
@@ -64,6 +65,11 @@ func (g *goemon) internalCommand(command, file string) bool {
 	case ":restart":
 		g.terminate()
 		return true
+	case ":event":
+		for _, s := range ss[2:] {
+			g.Logger.Println("fire", s)
+			g.task(fsnotify.Event{Name: s, Op: fsnotify.Write})
+		}
 	}
 	return false
 }
