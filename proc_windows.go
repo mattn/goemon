@@ -32,14 +32,14 @@ func (g *goemon) terminate() error {
 		} else {
 			cd := 5
 			for cd > 0 {
-				if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
+				if g.cmd.ProcessState != nil {
 					break
 				}
 				time.Sleep(time.Second)
 				cd--
 			}
 		}
-		if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
+		if g.cmd.ProcessState == nil {
 			g.cmd.Process.Kill()
 		}
 	}
