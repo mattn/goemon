@@ -47,14 +47,14 @@ func main() {
 			usage()
 		case "-g":
 			if len(os.Args) == 2 {
-				fmt.Print(string(MustAsset("web.yaml")))
+				fmt.Print(string(MustAsset("web.yml")))
 			} else if os.Args[2] == "?" {
 				keys := AssetNames()
 				sort.Strings(keys)
 				for _, k := range keys {
-					fmt.Println(k[:len(k)-5])
+					fmt.Println(k[:len(k)-4])
 				}
-			} else if t, err := Asset(os.Args[2] + ".yaml"); err == nil {
+			} else if t, err := Asset(os.Args[2] + ".yml"); err == nil {
 				fmt.Print(string(t))
 			} else {
 				usage()

@@ -3,4 +3,3 @@ tasks:
 - match: '*.c|*.cpp|*.cxx'
   commands:
   - make
-
