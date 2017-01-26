@@ -135,8 +135,14 @@ func (t *task) match(file string) bool {
 func (g *goemon) task(event fsnotify.Event) {
 	file := filepath.ToSlash(event.Name)
 	for _, t := range g.conf.Tasks {
-		if !t.match(file) {
-			continue
+		if strings.HasPrefix(event.Name, ":") {
+			if t.Match != file {
+				continue
+			}
+		} else {
+			if !t.match(file) {
+				continue
+			}
 		}
 		t.mutex.Lock()
 		if t.hit {
@@ -231,7 +237,14 @@ func (g *goemon) load() error {
 		return err
 	}
 	g.File = fn
-	b, err := ioutil.ReadFile(fn)
+	var b []byte
+	for i := 0; i < 3; i++ {
+		b, err = ioutil.ReadFile(fn)
+		if err == nil {
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 	if err != nil {
 		return err
 	}
