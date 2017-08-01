@@ -99,6 +99,7 @@ func (g *goemon) externalCommand(command, file string) bool {
 		cmd = exec.Command("sh", "-c", command)
 	}
 	g.Logger.Println("executing", command)
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
