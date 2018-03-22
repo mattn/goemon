@@ -12,11 +12,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/omeid/jsmin"
 	"github.com/omeid/livereload"
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/css"
-	"gopkg.in/fsnotify.v1"
 )
 
 func (g *goemon) internalCommand(command, file string) bool {
