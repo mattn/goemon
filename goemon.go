@@ -16,8 +16,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/omeid/livereload"
-	"gopkg.in/fsnotify.v1"
 	"gopkg.in/yaml.v2"
 )
 
