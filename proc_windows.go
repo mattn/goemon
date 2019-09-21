@@ -3,6 +3,7 @@
 package goemon
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
@@ -25,17 +26,25 @@ func (g *goemon) spawn() error {
 	return g.cmd.Run()
 }
 
+func kill(p *os.Process) error {
+	return exec.Command("taskkill", "/F", "/T", "/PID", fmt.Sprint(p.Pid)).Run()
+}
+
 func (g *goemon) terminate(sig os.Signal) error {
 	if g.cmd != nil && g.cmd.Process != nil {
 		if err := interrupt(g.cmd.Process, sig); err != nil {
 			g.Logger.Println(err)
-			return g.cmd.Process.Kill()
+			return kill(g.cmd.Process)
 		}
-		t := time.AfterFunc(5*time.Second, func() {
-			g.cmd.Process.Kill()
-		})
-		defer t.Stop()
-		return g.cmd.Wait()
+
+		deadline := time.Now().Add(5 * time.Second)
+		for time.Now().Before(deadline) {
+			if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
+				return nil
+			}
+			time.Sleep(100)
+		}
+		return kill(g.cmd.Process)
 	}
 	return nil
 }

@@ -23,7 +23,7 @@ import (
 
 const logFlag = log.Ldate | log.Ltime | log.Lshortfile
 
-var commandRe = regexp.MustCompile(`^\s*(:[a-z]+)(?:\s+(\S+))*$`)
+var commandRe = regexp.MustCompile(`^\s*(:[a-z]+!?)(?:\s+(\S+))*$`)
 
 type goemon struct {
 	File   string

@@ -24,11 +24,15 @@ func (g *goemon) terminate(sig os.Signal) error {
 			g.Logger.Println(err)
 			return g.cmd.Process.Kill()
 		}
-		t := time.AfterFunc(5*time.Second, func() {
-			g.cmd.Process.Kill()
-		})
-		defer t.Stop()
-		return g.cmd.Wait()
+
+		deadline := time.Now().Add(5 * time.Second)
+		for time.Now().Before(deadline) {
+			if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
+				return nil
+			}
+			time.Sleep(100)
+		}
+		return kill(g.cmd.Process)
 	}
 	return nil
 }
