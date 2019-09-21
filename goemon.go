@@ -14,6 +14,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -26,6 +27,8 @@ const logFlag = log.Ldate | log.Ltime | log.Lshortfile
 var commandRe = regexp.MustCompile(`^\s*(:[a-z]+!?)(?:\s+(\S+))*$`)
 
 type goemon struct {
+	tasks uint64
+
 	File   string
 	Logger *log.Logger
 	Args   []string
@@ -153,6 +156,8 @@ func (g *goemon) task(event fsnotify.Event) {
 		t.mutex.Unlock()
 		g.Logger.Println(event)
 		go func(name string, t *task) {
+			atomic.AddUint64(&g.tasks, 1)
+
 		loopCommand:
 			for _, command := range t.Commands {
 				switch {
@@ -169,6 +174,7 @@ func (g *goemon) task(event fsnotify.Event) {
 			t.mutex.Lock()
 			t.hit = false
 			t.mutex.Unlock()
+			atomic.AddUint64(&g.tasks, ^uint64(0))
 		}(event.Name, t)
 	}
 }
@@ -321,6 +327,10 @@ func (g *goemon) Run() *goemon {
 		signal.Notify(sig, os.Interrupt)
 		errChan := make(chan error, 1)
 		for {
+			if atomic.LoadUint64(&g.tasks) > 0 {
+				time.Sleep(time.Second)
+				continue
+			}
 			go func() {
 				err := g.restart()
 				errChan <- err
