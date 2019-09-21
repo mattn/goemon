@@ -49,7 +49,7 @@ func init() {
 }
 
 func asset(name string) ([]byte, error) {
-	f, err := hfs.Open(name)
+	f, err := hfs.Open("/" + name)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func main() {
 			usage()
 		case "-g":
 			if len(os.Args) == 2 {
-				b, _ := asset("/web.yml")
+				b, _ := asset("web.yml")
 				fmt.Print(string(string(b)))
 			} else if os.Args[2] == "?" {
 				keys := names()
