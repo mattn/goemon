@@ -49,7 +49,7 @@ func init() {
 }
 
 func asset(name string) ([]byte, error) {
-	f, err := hfs.Open("/web.yml")
+	f, err := hfs.Open(name)
 	if err != nil {
 		return nil, err
 	}
