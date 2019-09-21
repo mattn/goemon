@@ -62,17 +62,11 @@ func (g *goemon) internalCommand(command, file string) bool {
 		return true
 	case ":minify":
 		return g.minify(file)
+	case ":restart!":
+		g.terminate(os.Kill)
+		return true
 	case ":restart":
-		sig := os.Signal(nil)
-		if len(ss[2:]) > 0 {
-			switch ss[2] {
-			case "interrupt":
-				sig = os.Interrupt
-			case "kill":
-				sig = os.Kill
-			}
-		}
-		g.terminate(sig)
+		g.terminate(os.Interrupt)
 		return true
 	case ":event":
 		for _, s := range ss[2:] {

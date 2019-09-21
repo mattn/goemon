@@ -41,6 +41,9 @@ func (g *goemon) terminate(sig os.Signal) error {
 }
 
 func interrupt(p *os.Process, sig os.Signal) error {
+	if sig == os.Kill {
+		return p.Kill()
+	}
 	procSetConsoleCtrlHandler.Call(0, 1)
 	defer procSetConsoleCtrlHandler.Call(0, 0)
 	r1, _, err := procGenerateConsoleCtrlEvent.Call(syscall.CTRL_C_EVENT, uintptr(p.Pid))
