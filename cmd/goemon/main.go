@@ -1,14 +1,19 @@
 package main
 
-//go:generate go-bindata -prefix assets assets
+//go:generate go get github.com/rakyll/statik
+//go:generate statik
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"sort"
 
 	"github.com/mattn/goemon"
+	_ "github.com/mattn/goemon/cmd/goemon/statik"
+	"github.com/rakyll/statik/fs"
 )
 
 func usage() {
@@ -33,6 +38,42 @@ func usage() {
 	os.Exit(1)
 }
 
+var hfs http.FileSystem
+
+func init() {
+	var err error
+	hfs, err = fs.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func asset(name string) ([]byte, error) {
+	f, err := hfs.Open("/web.yml")
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return ioutil.ReadAll(f)
+}
+
+func names() []string {
+	dir, err := hfs.Open("/")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer dir.Close()
+	fss, err := dir.Readdir(-1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var files []string
+	for _, fsi := range fss {
+		files = append(files, fsi.Name())
+	}
+	return files
+}
+
 func main() {
 	file := ""
 	args := []string{}
@@ -47,14 +88,15 @@ func main() {
 			usage()
 		case "-g":
 			if len(os.Args) == 2 {
-				fmt.Print(string(MustAsset("web.yml")))
+				b, _ := asset("/web.yml")
+				fmt.Print(string(string(b)))
 			} else if os.Args[2] == "?" {
-				keys := AssetNames()
+				keys := names()
 				sort.Strings(keys)
 				for _, k := range keys {
 					fmt.Println(k[:len(k)-4])
 				}
-			} else if t, err := Asset(os.Args[2] + ".yml"); err == nil {
+			} else if t, err := asset(os.Args[2] + ".yml"); err == nil {
 				fmt.Print(string(t))
 			} else {
 				usage()
