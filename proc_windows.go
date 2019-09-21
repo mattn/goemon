@@ -25,9 +25,9 @@ func (g *goemon) spawn() error {
 	return g.cmd.Run()
 }
 
-func (g *goemon) terminate() error {
+func (g *goemon) terminate(sig os.Signal) error {
 	if g.cmd != nil && g.cmd.Process != nil {
-		if err := interrupt(g.cmd.Process); err != nil {
+		if err := interrupt(g.cmd.Process, sig); err != nil {
 			g.Logger.Println(err)
 			return g.cmd.Process.Kill()
 		}
@@ -40,14 +40,10 @@ func (g *goemon) terminate() error {
 	return nil
 }
 
-func interrupt(p *os.Process) error {
+func interrupt(p *os.Process, sig os.Signal) error {
 	procSetConsoleCtrlHandler.Call(0, 1)
 	defer procSetConsoleCtrlHandler.Call(0, 0)
-	r1, _, err := procGenerateConsoleCtrlEvent.Call(syscall.CTRL_BREAK_EVENT, uintptr(p.Pid))
-	if r1 == 0 {
-		return err
-	}
-	r1, _, err = procGenerateConsoleCtrlEvent.Call(syscall.CTRL_C_EVENT, uintptr(p.Pid))
+	r1, _, err := procGenerateConsoleCtrlEvent.Call(syscall.CTRL_C_EVENT, uintptr(p.Pid))
 	if r1 == 0 {
 		return err
 	}

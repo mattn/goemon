@@ -124,7 +124,7 @@ func (g *goemon) restart() error {
 	if len(g.Args) == 0 {
 		return nil
 	}
-	g.terminate()
+	g.terminate(nil)
 	return g.spawn()
 }
 
@@ -333,7 +333,7 @@ func (g *goemon) Run() *goemon {
 				}
 				g.Logger.Println("restarting command")
 			case <-sig:
-				g.terminate()
+				g.terminate(nil)
 				os.Exit(0)
 			}
 		}
@@ -350,7 +350,7 @@ func (g *goemon) Terminate() {
 		g.fsw.Close()
 	}
 	if g.cmd.Process != nil {
-		g.terminate()
+		g.terminate(nil)
 	}
 	g.Logger.Println("goemon terminated")
 }
