@@ -32,7 +32,7 @@ func (g *goemon) terminate(sig os.Signal) error {
 			}
 			time.Sleep(100)
 		}
-		return kill(g.cmd.Process)
+		return g.cmd.Process.Kill()
 	}
 	return nil
 }
