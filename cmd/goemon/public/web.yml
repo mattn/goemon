@@ -11,7 +11,7 @@ tasks:
 - match: './assets/*.html'
   commands:
   - :livereload /
-- match: '*.go'
+- match: '**/*.go'
   commands:
   - go build
   - :restart
