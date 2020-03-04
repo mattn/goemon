@@ -9,11 +9,18 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime"
 	"sort"
 
 	"github.com/mattn/goemon"
 	_ "github.com/mattn/goemon/cmd/goemon/statik"
 	"github.com/rakyll/statik/fs"
+)
+
+const (
+	name     = "goemon"
+	version  = "0.0.1"
+	revision = "HEAD"
 )
 
 func usage() {
@@ -118,6 +125,9 @@ func main() {
 			args = os.Args[3:]
 		case "--":
 			args = os.Args[2:]
+		case "-v":
+			fmt.Printf("%s %s (rev: %s/%s)\n", name, version, revision, runtime.Version())
+			os.Exit(1)
 		default:
 			args = os.Args[1:]
 		}
