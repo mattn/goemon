@@ -74,7 +74,7 @@ func TestSpawn(t *testing.T) {
 	g := New()
 	g.Args = []string{"go", "version"}
 
-	err = g.terminate()
+	err = g.terminate(os.Interrupt)
 	if err != nil {
 		t.Fatal("Should be succeeded", err)
 	}
