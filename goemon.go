@@ -22,6 +22,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const (
+	name     = "goemon"
+	version  = "0.0.1"
+	revision = "HEAD"
+)
+
 const logFlag = log.Ldate | log.Ltime | log.Lshortfile
 
 var commandRe = regexp.MustCompile(`^\s*(:[a-z]+!?)(?:\s+(\S+))*$`)
