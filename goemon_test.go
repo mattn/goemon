@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/fsnotify/fsnotify"
 )
 
 func TestCompilePattern(t *testing.T) {
@@ -116,6 +118,7 @@ func TestLoad(t *testing.T) {
 tasks:
 - match: './assets/*.js'
   commands:
+  ops:
 `), 0644)
 
 	err = g.load()
@@ -281,6 +284,187 @@ tasks:
 		} else {
 			if test.result {
 				t.Fatal("Should be match:", test.file)
+			}
+		}
+	}
+}
+
+func TestMatchOp(t *testing.T) {
+	dir, err := ioutil.TempDir(os.TempDir(), "goemon")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+
+	tmp, err := ioutil.TempFile(dir, "goemon")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(`
+tasks:
+- match: './assets/*.js'
+  commands:
+`), 0644)
+
+	g := New()
+	g.File = tmp.Name()
+	err = g.load()
+	if err != nil {
+		t.Fatal("Should be succeeded", err)
+	}
+
+	tests := []struct {
+		file   string
+		op     fsnotify.Op
+		result bool
+	}{
+		{"assets/a.js", fsnotify.Create, true},
+		{"foo", fsnotify.Write, false},
+		{"assets/a.js", fsnotify.Write, true},
+		{"foo", fsnotify.Remove, false},
+		{"assets/a.js", fsnotify.Remove, true},
+		{"foo", fsnotify.Rename, false},
+		{"assets/a.js", fsnotify.Rename, true},
+		{"foo", fsnotify.Chmod, false},
+		{"assets/a.js", fsnotify.Chmod, true},
+	}
+
+	for _, test := range tests {
+		file, _ := filepath.Abs(test.file)
+		file = filepath.ToSlash(file)
+		if g.conf.Tasks[0].match(file) && g.conf.Tasks[0].matchOp(test.op) {
+			if !test.result {
+				t.Fatal("Should not match:", test.file, test.op)
+			}
+		} else {
+			if test.result {
+				t.Fatal("Should not match:", test.file, test.op)
+			}
+		}
+	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(`
+tasks:
+- match: './assets/*.js'
+  commands:
+  ops:
+  - CREATE
+`), 0644)
+
+	err = g.load()
+	if err != nil {
+		t.Fatal("Should be succeeded", err)
+	}
+
+	tests = []struct {
+		file   string
+		op     fsnotify.Op
+		result bool
+	}{
+		{"foo", fsnotify.Create, false},
+		{"assets/a.js", fsnotify.Create, true},
+		{"assets/a.js", fsnotify.Write, false},
+		{"assets/a.js", fsnotify.Remove, false},
+		{"assets/a.js", fsnotify.Rename, false},
+		{"assets/a.js", fsnotify.Chmod, false},
+	}
+
+	for _, test := range tests {
+		file, _ := filepath.Abs(test.file)
+		file = filepath.ToSlash(file)
+		if g.conf.Tasks[0].match(file) && g.conf.Tasks[0].matchOp(test.op) {
+			if !test.result {
+				t.Fatal("Should not match:", test.file, test.op)
+			}
+		} else {
+			if test.result {
+				t.Fatal("Should not match:", test.file, test.op)
+			}
+		}
+	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(`
+tasks:
+- match: './assets/*.js'
+  commands:
+  ops:
+  - CREATE
+  - chmod
+`), 0644)
+
+	err = g.load()
+	if err != nil {
+		t.Fatal("Should be succeeded", err)
+	}
+
+	tests = []struct {
+		file   string
+		op     fsnotify.Op
+		result bool
+	}{
+		{"foo", fsnotify.Create, false},
+		{"assets/a.js", fsnotify.Create, true},
+		{"assets/a.js", fsnotify.Write, false},
+		{"assets/a.js", fsnotify.Remove, false},
+		{"assets/a.js", fsnotify.Rename, false},
+		{"assets/a.js", fsnotify.Chmod, true},
+	}
+
+	for _, test := range tests {
+		file, _ := filepath.Abs(test.file)
+		file = filepath.ToSlash(file)
+		if g.conf.Tasks[0].match(file) && g.conf.Tasks[0].matchOp(test.op) {
+			if !test.result {
+				t.Fatal("Should not match:", test.file, test.op)
+			}
+		} else {
+			if test.result {
+				t.Fatal("Should be match:", test.file, test.op)
+			}
+		}
+	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(`
+tasks:
+- match: './assets/*.js'
+  commands:
+  ops:
+  - CREATE
+  - chmod
+  - wriTe
+  - remove
+  - rename
+`), 0644)
+
+	err = g.load()
+	if err != nil {
+		t.Fatal("Should be succeeded", err)
+	}
+
+	tests = []struct {
+		file   string
+		op     fsnotify.Op
+		result bool
+	}{
+		{"foo", fsnotify.Create, false},
+		{"assets/a.js", fsnotify.Create, true},
+		{"assets/a.js", fsnotify.Write, true},
+		{"assets/a.js", fsnotify.Remove, true},
+		{"assets/a.js", fsnotify.Rename, true},
+		{"assets/a.js", fsnotify.Chmod, true},
+	}
+
+	for _, test := range tests {
+		file, _ := filepath.Abs(test.file)
+		file = filepath.ToSlash(file)
+		if g.conf.Tasks[0].match(file) && g.conf.Tasks[0].matchOp(test.op) {
+			if !test.result {
+				t.Fatal("Should not match:", test.file, test.op)
+			}
+		} else {
+			if test.result {
+				t.Fatal("Should be match:", test.file, test.op)
 			}
 		}
 	}

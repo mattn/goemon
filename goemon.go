@@ -42,7 +42,9 @@ type goemon struct {
 type task struct {
 	Match    string   `yaml:"match"`
 	Ignore   string   `yaml:"ignore"`
+	Ops      []string `yaml:"ops"`
 	Commands []string `yaml:"commands"`
+	mops     uint32
 	mre      *regexp.Regexp
 	ire      *regexp.Regexp
 	hit      bool
@@ -135,11 +137,15 @@ func (t *task) match(file string) bool {
 	return (t.mre != nil && t.mre.MatchString(file)) && (t.ire == nil || !t.ire.MatchString(file))
 }
 
+func (t *task) matchOp(op fsnotify.Op) bool {
+	if t.mops == 0 {
+		return true
+	}
+	return uint32(op)&t.mops == uint32(op)
+}
+
 func (g *goemon) task(event fsnotify.Event) {
 	file := filepath.ToSlash(event.Name)
-	if event.String() == "CHMOD" {
-		return
-	}
 	for _, t := range g.conf.Tasks {
 		if strings.HasPrefix(event.Name, ":") {
 			if t.Match != file {
@@ -150,6 +156,9 @@ func (g *goemon) task(event fsnotify.Event) {
 				continue
 			}
 		}
+		if !t.matchOp(event.Op) {
+			continue
+		}
 		t.mutex.Lock()
 		if t.hit {
 			t.mutex.Unlock()
@@ -157,6 +166,7 @@ func (g *goemon) task(event fsnotify.Event) {
 		}
 		t.hit = true
 		t.mutex.Unlock()
+		g.Logger.Println(event)
 		go func(name string, t *task) {
 			atomic.AddUint64(&g.tasks, 1)
 
@@ -284,6 +294,23 @@ func (g *goemon) load() error {
 		} else {
 			t.ire = nil
 		}
+		for _, op := range t.Ops {
+			switch strings.ToUpper(op) {
+			case fsnotify.Create.String():
+				t.mops = t.mops | uint32(fsnotify.Create)
+			case fsnotify.Write.String():
+				t.mops = t.mops | uint32(fsnotify.Write)
+			case fsnotify.Remove.String():
+				t.mops = t.mops | uint32(fsnotify.Remove)
+			case fsnotify.Rename.String():
+				t.mops = t.mops | uint32(fsnotify.Rename)
+			case fsnotify.Chmod.String():
+				t.mops = t.mops | uint32(fsnotify.Chmod)
+			default:
+				g.Logger.Printf("unknow opration %v", op)
+			}
+		}
+		fmt.Printf("t.mops = %+v\n", t.mops)
 	}
 	return nil
 }
