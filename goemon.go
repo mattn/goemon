@@ -137,6 +137,9 @@ func (t *task) match(file string) bool {
 
 func (g *goemon) task(event fsnotify.Event) {
 	file := filepath.ToSlash(event.Name)
+	if event.String() == "CHMOD" {
+		return
+	}
 	for _, t := range g.conf.Tasks {
 		if strings.HasPrefix(event.Name, ":") {
 			if t.Match != file {
@@ -154,7 +157,6 @@ func (g *goemon) task(event fsnotify.Event) {
 		}
 		t.hit = true
 		t.mutex.Unlock()
-		g.Logger.Println(event)
 		go func(name string, t *task) {
 			atomic.AddUint64(&g.tasks, 1)
 

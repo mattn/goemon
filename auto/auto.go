@@ -1,7 +1,7 @@
 package auto
 
 import (
-	"github.com/mattn/goemon"
+	"github.com/miya-masa/goemon"
 )
 
 func init() {

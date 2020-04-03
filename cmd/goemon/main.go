@@ -12,8 +12,8 @@ import (
 	"runtime"
 	"sort"
 
-	"github.com/mattn/goemon"
-	_ "github.com/mattn/goemon/cmd/goemon/statik"
+	"github.com/miya-masa/goemon"
+	_ "github.com/miya-masa/goemon/cmd/goemon/statik"
 	"github.com/rakyll/statik/fs"
 )
 
