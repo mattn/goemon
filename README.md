@@ -1,6 +1,6 @@
 # goemon
 
-![](https://raw.githubusercontent.com/miya-masa/goemon/master/data/goemon.png)
+![](https://raw.githubusercontent.com/mattn/goemon/master/data/goemon.png)
 
 **Go** **E**xtensible **Mon**itoring
 
@@ -113,7 +113,7 @@ cat > goemon.go
 package main
 
 import (
-	_ "github.com/miya-masa/goemon/auto"
+	_ "github.com/mattn/goemon/auto"
 )
 ^D
 ```
@@ -124,7 +124,7 @@ Then `go build`. You don't need to use `goemon` command.
 ## Installation
 
 ```
-$ go get github.com/miya-masa/goemon/cmd/goemon
+$ go get github.com/mattn/goemon/cmd/goemon
 ```
 If you want to minify js, install minifyjs like below.
 

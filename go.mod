@@ -1,4 +1,4 @@
-module github.com/miya-masa/goemon
+module github.com/mattn/goemon
 
 go 1.14
 
