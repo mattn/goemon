@@ -42,11 +42,11 @@ type goemon struct {
 type task struct {
 	Match    string   `yaml:"match"`
 	Ignore   string   `yaml:"ignore"`
-	Ops      []string `yaml:"ops"`
 	Commands []string `yaml:"commands"`
-	mops     uint32
+	Ops      []string `yaml:"ops"`
 	mre      *regexp.Regexp
 	ire      *regexp.Regexp
+	mops     uint32
 	hit      bool
 	mutex    sync.Mutex
 }
@@ -307,7 +307,7 @@ func (g *goemon) load() error {
 			case fsnotify.Chmod.String():
 				t.mops = t.mops | uint32(fsnotify.Chmod)
 			default:
-				g.Logger.Printf("unknow opration %v", op)
+				g.Logger.Printf("unknow operation %v", op)
 			}
 		}
 	}
