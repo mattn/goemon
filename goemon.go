@@ -310,7 +310,6 @@ func (g *goemon) load() error {
 				g.Logger.Printf("unknow opration %v", op)
 			}
 		}
-		fmt.Printf("t.mops = %+v\n", t.mops)
 	}
 	return nil
 }
