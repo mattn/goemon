@@ -118,6 +118,21 @@ func TestLoad(t *testing.T) {
 tasks:
 - match: './assets/*.js'
   commands:
+`), 0644)
+
+	err = g.load()
+	if err != nil {
+		t.Fatal("Should be succeeded")
+	}
+
+	if len(g.conf.Tasks) != 1 {
+		t.Fatal("Should have a task at least")
+	}
+
+	ioutil.WriteFile(tmp.Name(), []byte(`
+tasks:
+- match: './assets/*.js'
+  commands:
   ops:
 `), 0644)
 
