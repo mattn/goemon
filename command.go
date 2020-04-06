@@ -19,7 +19,7 @@ import (
 	"github.com/tdewolff/minify/css"
 )
 
-func (g *goemon) internalCommand(command, file string) bool {
+func (g *Goemon) internalCommand(command, file string) bool {
 	ss := commandRe.FindStringSubmatch(command)
 	switch ss[1] {
 	case ":livereload":
@@ -75,7 +75,7 @@ func (g *goemon) internalCommand(command, file string) bool {
 	return false
 }
 
-func (g *goemon) externalCommand(command, file string) bool {
+func (g *Goemon) externalCommand(command, file string) bool {
 	var cmd *exec.Cmd
 	command = os.Expand(command, func(s string) string {
 		switch s {
@@ -111,7 +111,7 @@ func (g *goemon) externalCommand(command, file string) bool {
 	return true
 }
 
-func (g *goemon) minify(name string) bool {
+func (g *Goemon) minify(name string) bool {
 	if strings.HasSuffix(filepath.Base(name), ".min.") {
 		return true // ignore
 	}
@@ -157,7 +157,7 @@ func (g *goemon) minify(name string) bool {
 	return false
 }
 
-func (g *goemon) livereload() error {
+func (g *Goemon) livereload() error {
 	g.lrs = livereload.New("goemon")
 	defer g.lrs.Close()
 	addr := g.conf.LiveReload

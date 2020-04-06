@@ -16,7 +16,7 @@ var (
 	procGenerateConsoleCtrlEvent = libkernel32.MustFindProc("GenerateConsoleCtrlEvent")
 )
 
-func (g *goemon) spawn() error {
+func (g *Goemon) spawn() error {
 	g.cmd = exec.Command(g.Args[0], g.Args[1:]...)
 	g.cmd.Stdout = os.Stdout
 	g.cmd.Stderr = os.Stderr
@@ -30,7 +30,7 @@ func kill(p *os.Process) error {
 	return exec.Command("taskkill", "/F", "/T", "/PID", fmt.Sprint(p.Pid)).Run()
 }
 
-func (g *goemon) terminate(sig os.Signal) error {
+func (g *Goemon) terminate(sig os.Signal) error {
 	if g.cmd != nil && g.cmd.Process != nil {
 		if err := interrupt(g.cmd.Process, sig); err != nil {
 			g.Logger.Println(err)

@@ -26,7 +26,8 @@ const logFlag = log.Ldate | log.Ltime | log.Lshortfile
 
 var commandRe = regexp.MustCompile(`^\s*(:[a-z]+!?)(?:\s+(\S+))*$`)
 
-type goemon struct {
+// Goemon is structure of this application
+type Goemon struct {
 	tasks uint64
 
 	File   string
@@ -57,23 +58,23 @@ type conf struct {
 	Tasks      []*task `yaml:"tasks"`
 }
 
-//New create new instance of goemon
-func New() *goemon {
-	return &goemon{
+// New create new instance of goemon
+func New() *Goemon {
+	return &Goemon{
 		File:   "goemon.yml",
 		Logger: log.New(os.Stderr, "GOEMON ", logFlag),
 	}
 }
 
-//New create new instance of goemon with specified arguments by args
-func NewWithArgs(args []string) *goemon {
+// NewWithArgs create new instance of goemon with specified arguments by args
+func NewWithArgs(args []string) *Goemon {
 	g := New()
 	g.Args = args
 	return g
 }
 
-//Run start goemon server
-func Run() *goemon {
+// Run start goemon server
+func Run() *Goemon {
 	return New().Run()
 }
 
@@ -125,7 +126,7 @@ func compilePattern(pattern string) (*regexp.Regexp, error) {
 	return regexp.Compile(buf.String())
 }
 
-func (g *goemon) restart() error {
+func (g *Goemon) restart() error {
 	if len(g.Args) == 0 {
 		return nil
 	}
@@ -144,7 +145,7 @@ func (t *task) matchOp(op fsnotify.Op) bool {
 	return uint32(op)&t.mops == uint32(op)
 }
 
-func (g *goemon) task(event fsnotify.Event) {
+func (g *Goemon) task(event fsnotify.Event) {
 	file := filepath.ToSlash(event.Name)
 	for _, t := range g.conf.Tasks {
 		if strings.HasPrefix(event.Name, ":") {
@@ -191,7 +192,7 @@ func (g *goemon) task(event fsnotify.Event) {
 	}
 }
 
-func (g *goemon) watch() error {
+func (g *Goemon) watch() error {
 	var err error
 	g.fsw, err = fsnotify.NewWatcher()
 	if err != nil {
@@ -248,7 +249,7 @@ func (g *goemon) watch() error {
 	}
 }
 
-func (g *goemon) load() error {
+func (g *Goemon) load() error {
 	g.conf.Tasks = []*task{}
 	fn, err := filepath.Abs(g.File)
 	if err != nil {
@@ -314,7 +315,8 @@ func (g *goemon) load() error {
 	return nil
 }
 
-func (g *goemon) Run() *goemon {
+// Run start tasks
+func (g *Goemon) Run() *Goemon {
 	err := g.load()
 	if err != nil {
 		g.Logger.Println(err)
@@ -379,8 +381,8 @@ func (g *goemon) Run() *goemon {
 	return g
 }
 
-//Terminate stop goemon server
-func (g *goemon) Terminate() {
+// Terminate stop goemon server
+func (g *Goemon) Terminate() {
 	if g.lrc != nil {
 		g.lrc.Close()
 	}
