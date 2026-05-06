@@ -17,7 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
+	"github.com/gofsnotify/fsnotify"
 	"github.com/omeid/livereload"
 	"gopkg.in/yaml.v2"
 )
@@ -198,7 +198,7 @@ func (g *Goemon) watch() error {
 	if err != nil {
 		return err
 	}
-	g.fsw.Add(g.File)
+	g.fsw.Add(g.File, fsnotify.All)
 
 	root, err := filepath.Abs(".")
 	if err != nil {
@@ -206,7 +206,7 @@ func (g *Goemon) watch() error {
 	}
 
 	dup := map[string]bool{}
-	g.fsw.Add(root)
+	g.fsw.Add(root, fsnotify.All)
 	dup[root] = true
 
 	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -220,7 +220,7 @@ func (g *Goemon) watch() error {
 		if _, ok := dup[dir]; !ok {
 			for _, t := range g.conf.Tasks {
 				if t.match(path) {
-					g.fsw.Add(dir)
+					g.fsw.Add(dir, fsnotify.All)
 					dup[dir] = true
 					break
 				}

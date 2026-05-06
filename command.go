@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
+	"github.com/gofsnotify/fsnotify"
 	"github.com/omeid/jsmin"
 	"github.com/omeid/livereload"
 	"github.com/tdewolff/minify"
