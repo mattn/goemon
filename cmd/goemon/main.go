@@ -19,7 +19,7 @@ import (
 
 const (
 	name     = "goemon"
-	version  = "0.0.3"
+	version  = "0.0.4"
 	revision = "HEAD"
 )
 
