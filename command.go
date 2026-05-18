@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofsnotify/fsnotify"
+	"github.com/fswatcher/fswatcher"
 	"github.com/omeid/jsmin"
 	"github.com/omeid/livereload"
 	"github.com/tdewolff/minify"
@@ -69,7 +69,7 @@ func (g *Goemon) internalCommand(command, file string) bool {
 	case ":event":
 		for _, s := range ss[2:] {
 			g.Logger.Println("fire", s)
-			g.task(fsnotify.Event{Name: s, Op: fsnotify.Write})
+			g.task(fswatcher.Event{Name: s, Op: fswatcher.Write})
 		}
 	}
 	return false

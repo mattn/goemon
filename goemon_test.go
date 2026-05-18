@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/gofsnotify/fsnotify"
+	"github.com/fswatcher/fswatcher"
 )
 
 func TestCompilePattern(t *testing.T) {
@@ -331,18 +331,18 @@ tasks:
 
 	tests := []struct {
 		file   string
-		op     fsnotify.Op
+		op     fswatcher.Op
 		result bool
 	}{
-		{"assets/a.js", fsnotify.Create, true},
-		{"foo", fsnotify.Write, false},
-		{"assets/a.js", fsnotify.Write, true},
-		{"foo", fsnotify.Remove, false},
-		{"assets/a.js", fsnotify.Remove, true},
-		{"foo", fsnotify.Rename, false},
-		{"assets/a.js", fsnotify.Rename, true},
-		{"foo", fsnotify.Chmod, false},
-		{"assets/a.js", fsnotify.Chmod, true},
+		{"assets/a.js", fswatcher.Create, true},
+		{"foo", fswatcher.Write, false},
+		{"assets/a.js", fswatcher.Write, true},
+		{"foo", fswatcher.Remove, false},
+		{"assets/a.js", fswatcher.Remove, true},
+		{"foo", fswatcher.Rename, false},
+		{"assets/a.js", fswatcher.Rename, true},
+		{"foo", fswatcher.Chmod, false},
+		{"assets/a.js", fswatcher.Chmod, true},
 	}
 
 	for _, test := range tests {
@@ -374,15 +374,15 @@ tasks:
 
 	tests = []struct {
 		file   string
-		op     fsnotify.Op
+		op     fswatcher.Op
 		result bool
 	}{
-		{"foo", fsnotify.Create, false},
-		{"assets/a.js", fsnotify.Create, true},
-		{"assets/a.js", fsnotify.Write, false},
-		{"assets/a.js", fsnotify.Remove, false},
-		{"assets/a.js", fsnotify.Rename, false},
-		{"assets/a.js", fsnotify.Chmod, false},
+		{"foo", fswatcher.Create, false},
+		{"assets/a.js", fswatcher.Create, true},
+		{"assets/a.js", fswatcher.Write, false},
+		{"assets/a.js", fswatcher.Remove, false},
+		{"assets/a.js", fswatcher.Rename, false},
+		{"assets/a.js", fswatcher.Chmod, false},
 	}
 
 	for _, test := range tests {
@@ -415,15 +415,15 @@ tasks:
 
 	tests = []struct {
 		file   string
-		op     fsnotify.Op
+		op     fswatcher.Op
 		result bool
 	}{
-		{"foo", fsnotify.Create, false},
-		{"assets/a.js", fsnotify.Create, true},
-		{"assets/a.js", fsnotify.Write, false},
-		{"assets/a.js", fsnotify.Remove, false},
-		{"assets/a.js", fsnotify.Rename, false},
-		{"assets/a.js", fsnotify.Chmod, true},
+		{"foo", fswatcher.Create, false},
+		{"assets/a.js", fswatcher.Create, true},
+		{"assets/a.js", fswatcher.Write, false},
+		{"assets/a.js", fswatcher.Remove, false},
+		{"assets/a.js", fswatcher.Rename, false},
+		{"assets/a.js", fswatcher.Chmod, true},
 	}
 
 	for _, test := range tests {
@@ -459,15 +459,15 @@ tasks:
 
 	tests = []struct {
 		file   string
-		op     fsnotify.Op
+		op     fswatcher.Op
 		result bool
 	}{
-		{"foo", fsnotify.Create, false},
-		{"assets/a.js", fsnotify.Create, true},
-		{"assets/a.js", fsnotify.Write, true},
-		{"assets/a.js", fsnotify.Remove, true},
-		{"assets/a.js", fsnotify.Rename, true},
-		{"assets/a.js", fsnotify.Chmod, true},
+		{"foo", fswatcher.Create, false},
+		{"assets/a.js", fswatcher.Create, true},
+		{"assets/a.js", fswatcher.Write, true},
+		{"assets/a.js", fswatcher.Remove, true},
+		{"assets/a.js", fswatcher.Rename, true},
+		{"assets/a.js", fswatcher.Chmod, true},
 	}
 
 	for _, test := range tests {

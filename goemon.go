@@ -17,7 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/gofsnotify/fsnotify"
+	"github.com/fswatcher/fswatcher"
 	"github.com/omeid/livereload"
 	"gopkg.in/yaml.v2"
 )
@@ -35,7 +35,7 @@ type Goemon struct {
 	Args   []string
 	lrc    net.Listener
 	lrs    *livereload.Server
-	fsw    *fsnotify.Watcher
+	fsw    *fswatcher.Watcher
 	cmd    *exec.Cmd
 	conf   conf
 }
@@ -138,14 +138,14 @@ func (t *task) match(file string) bool {
 	return (t.mre != nil && t.mre.MatchString(file)) && (t.ire == nil || !t.ire.MatchString(file))
 }
 
-func (t *task) matchOp(op fsnotify.Op) bool {
+func (t *task) matchOp(op fswatcher.Op) bool {
 	if t.mops == 0 {
 		return true
 	}
 	return uint32(op)&t.mops == uint32(op)
 }
 
-func (g *Goemon) task(event fsnotify.Event) {
+func (g *Goemon) task(event fswatcher.Event) {
 	file := filepath.ToSlash(event.Name)
 	for _, t := range g.conf.Tasks {
 		if strings.HasPrefix(event.Name, ":") {
@@ -194,11 +194,11 @@ func (g *Goemon) task(event fsnotify.Event) {
 
 func (g *Goemon) watch() error {
 	var err error
-	g.fsw, err = fsnotify.NewWatcher()
+	g.fsw, err = fswatcher.NewWatcher()
 	if err != nil {
 		return err
 	}
-	g.fsw.Add(g.File, fsnotify.All)
+	g.fsw.Add(g.File, fswatcher.All)
 
 	root, err := filepath.Abs(".")
 	if err != nil {
@@ -206,7 +206,7 @@ func (g *Goemon) watch() error {
 	}
 
 	dup := map[string]bool{}
-	g.fsw.Add(root, fsnotify.All)
+	g.fsw.Add(root, fswatcher.All)
 	dup[root] = true
 
 	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
@@ -220,7 +220,7 @@ func (g *Goemon) watch() error {
 		if _, ok := dup[dir]; !ok {
 			for _, t := range g.conf.Tasks {
 				if t.match(path) {
-					g.fsw.Add(dir, fsnotify.All)
+					g.fsw.Add(dir, fswatcher.All)
 					dup[dir] = true
 					break
 				}
@@ -297,16 +297,16 @@ func (g *Goemon) load() error {
 		}
 		for _, op := range t.Ops {
 			switch strings.ToUpper(op) {
-			case fsnotify.Create.String():
-				t.mops = t.mops | uint32(fsnotify.Create)
-			case fsnotify.Write.String():
-				t.mops = t.mops | uint32(fsnotify.Write)
-			case fsnotify.Remove.String():
-				t.mops = t.mops | uint32(fsnotify.Remove)
-			case fsnotify.Rename.String():
-				t.mops = t.mops | uint32(fsnotify.Rename)
-			case fsnotify.Chmod.String():
-				t.mops = t.mops | uint32(fsnotify.Chmod)
+			case fswatcher.Create.String():
+				t.mops = t.mops | uint32(fswatcher.Create)
+			case fswatcher.Write.String():
+				t.mops = t.mops | uint32(fswatcher.Write)
+			case fswatcher.Remove.String():
+				t.mops = t.mops | uint32(fswatcher.Remove)
+			case fswatcher.Rename.String():
+				t.mops = t.mops | uint32(fswatcher.Rename)
+			case fswatcher.Chmod.String():
+				t.mops = t.mops | uint32(fswatcher.Chmod)
 			default:
 				g.Logger.Printf("unknow operation %v", op)
 			}
