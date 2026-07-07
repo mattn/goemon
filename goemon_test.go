@@ -1,10 +1,13 @@
 package goemon
 
 import (
+	"bytes"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/fswatcher/fswatcher"
@@ -71,6 +74,23 @@ func TestJsmin(t *testing.T) {
 	_, err = os.Stat(filepath.Join(dir, "foo.min.min.js"))
 	if !os.IsNotExist(err) {
 		t.Fatal("Should not minify already minified file")
+	}
+}
+
+func TestInternalCommandArgs(t *testing.T) {
+	var buf bytes.Buffer
+	g := New()
+	g.Logger = log.New(&buf, "", 0)
+
+	if !g.internalCommand(":sleep 1 2", "") {
+		t.Fatal("Should be succeeded")
+	}
+	out := buf.String()
+	if !strings.Contains(out, "sleeping 1ms") {
+		t.Fatalf("Should sleep for first argument: %v", out)
+	}
+	if !strings.Contains(out, "sleeping 2ms") {
+		t.Fatalf("Should sleep for second argument: %v", out)
 	}
 }
 
