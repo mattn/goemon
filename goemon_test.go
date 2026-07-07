@@ -62,7 +62,7 @@ func TestJsmin(t *testing.T) {
 	}
 	_, err = os.Stat(filepath.Join(dir, "foo.min.js"))
 	if err != nil {
-		t.Fatal(t)
+		t.Fatal(err)
 	}
 }
 
