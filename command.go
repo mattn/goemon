@@ -184,7 +184,7 @@ func (g *Goemon) livereload() error {
 		w.Header().Set("Content-Type", "application/javascript")
 		_, err := w.Write([]byte(liveReloadScript))
 		if err != nil {
-			g.lrc.Close()
+			g.Logger.Println(err)
 		}
 	})
 	mux.Handle("/livereload", g.lrs)
