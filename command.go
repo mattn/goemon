@@ -20,16 +20,16 @@ import (
 )
 
 func (g *Goemon) internalCommand(command, file string) bool {
-	ss := commandRe.FindStringSubmatch(command)
-	switch ss[1] {
+	ss := strings.Fields(command)
+	switch ss[0] {
 	case ":livereload":
-		for _, s := range ss[2:] {
+		for _, s := range ss[1:] {
 			g.Logger.Println("reloading", s)
 			g.lrs.Reload(s, true)
 		}
 		return true
 	case ":sleep":
-		for _, s := range ss[2:] {
+		for _, s := range ss[1:] {
 			si, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				g.Logger.Println("failed to parse argument for :sleep command:", err)
@@ -40,7 +40,7 @@ func (g *Goemon) internalCommand(command, file string) bool {
 		}
 		return true
 	case ":fizzbuzz":
-		for _, s := range ss[2:] {
+		for _, s := range ss[1:] {
 			si, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				g.Logger.Println("failed to parse argument for :fizzbuzz command:", err)
@@ -67,7 +67,7 @@ func (g *Goemon) internalCommand(command, file string) bool {
 	case ":restart":
 		return g.terminate(os.Interrupt) == nil
 	case ":event":
-		for _, s := range ss[2:] {
+		for _, s := range ss[1:] {
 			g.Logger.Println("fire", s)
 			g.task(fswatcher.Event{Name: s, Op: fswatcher.Write})
 		}
