@@ -117,7 +117,7 @@ func compilePattern(pattern string) (*regexp.Regexp, error) {
 			} else if rs[i] == '?' {
 				buf.WriteString(`\S`)
 			} else {
-				buf.WriteString(fmt.Sprintf(`[\x%x]`, rs[i]))
+				buf.WriteString(fmt.Sprintf(`[\x{%x}]`, rs[i]))
 			}
 		}
 		buf.WriteString("$")

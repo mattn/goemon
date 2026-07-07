@@ -20,6 +20,7 @@ func TestCompilePattern(t *testing.T) {
 		path string
 	}{
 		{`/path/**/*.txt`, `/path/to/file.txt`},
+		{`/path/こんにちは/*.txt`, `/path/こんにちは/file.txt`},
 	}
 	for _, test := range tests {
 		if runtime.GOOS == "windows" {
