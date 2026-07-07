@@ -113,11 +113,11 @@ func (g *Goemon) externalCommand(command, file string) bool {
 }
 
 func (g *Goemon) minify(name string) bool {
-	if strings.HasSuffix(filepath.Base(name), ".min.") {
-		return true // ignore
-	}
 	ext := filepath.Ext(name)
 	if ext == "" {
+		return true // ignore
+	}
+	if strings.HasSuffix(strings.TrimSuffix(filepath.Base(name), ext), ".min") {
 		return true // ignore
 	}
 	in, err := os.Open(name)
