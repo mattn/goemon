@@ -42,7 +42,7 @@ func (g *Goemon) terminate(sig os.Signal) error {
 			if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
 				return nil
 			}
-			time.Sleep(100)
+			time.Sleep(100 * time.Millisecond)
 		}
 		return kill(g.cmd.Process)
 	}
