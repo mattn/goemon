@@ -16,6 +16,9 @@ func (g *Goemon) spawn() error {
 }
 
 func (g *Goemon) terminate(sig os.Signal) error {
+	if sig == nil {
+		sig = os.Interrupt
+	}
 	if g.cmd != nil && g.cmd.Process != nil {
 		if sig == os.Kill {
 			return g.cmd.Process.Kill()
