@@ -71,6 +71,7 @@ func (g *Goemon) internalCommand(command, file string) bool {
 			g.Logger.Println("fire", s)
 			g.task(fswatcher.Event{Name: s, Op: fswatcher.Write})
 		}
+		return true
 	}
 	return false
 }
