@@ -138,6 +138,11 @@ func TestSpawn(t *testing.T) {
 	}
 }
 
+func TestTerminateWithoutCommand(t *testing.T) {
+	g := New()
+	g.Terminate() // should not panic when no command has been spawned
+}
+
 func TestLoad(t *testing.T) {
 	dir, err := ioutil.TempDir(os.TempDir(), "goemon")
 	if err != nil {

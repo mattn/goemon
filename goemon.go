@@ -393,7 +393,7 @@ func (g *Goemon) Terminate() {
 	if g.fsw != nil {
 		g.fsw.Close()
 	}
-	if g.cmd.Process != nil {
+	if g.cmd != nil && g.cmd.Process != nil {
 		g.terminate(nil)
 	}
 	g.Logger.Println("goemon terminated")
