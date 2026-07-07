@@ -19,23 +19,24 @@ func (g *Goemon) terminate(sig os.Signal) error {
 	if sig == nil {
 		sig = os.Interrupt
 	}
-	if g.cmd != nil && g.cmd.Process != nil {
+	cmd := g.cmd
+	if cmd != nil && cmd.Process != nil {
 		if sig == os.Kill {
-			return g.cmd.Process.Kill()
+			return cmd.Process.Kill()
 		}
-		if err := g.cmd.Process.Signal(sig); err != nil {
+		if err := cmd.Process.Signal(sig); err != nil {
 			g.Logger.Println(err)
-			return g.cmd.Process.Kill()
+			return cmd.Process.Kill()
 		}
 
 		deadline := time.Now().Add(5 * time.Second)
 		for time.Now().Before(deadline) {
-			if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
+			if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
 				return nil
 			}
 			time.Sleep(100 * time.Millisecond)
 		}
-		return g.cmd.Process.Kill()
+		return cmd.Process.Kill()
 	}
 	return nil
 }

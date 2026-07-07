@@ -31,20 +31,21 @@ func kill(p *os.Process) error {
 }
 
 func (g *Goemon) terminate(sig os.Signal) error {
-	if g.cmd != nil && g.cmd.Process != nil {
-		if err := interrupt(g.cmd.Process, sig); err != nil {
+	cmd := g.cmd
+	if cmd != nil && cmd.Process != nil {
+		if err := interrupt(cmd.Process, sig); err != nil {
 			g.Logger.Println(err)
-			return kill(g.cmd.Process)
+			return kill(cmd.Process)
 		}
 
 		deadline := time.Now().Add(5 * time.Second)
 		for time.Now().Before(deadline) {
-			if g.cmd.ProcessState != nil && g.cmd.ProcessState.Exited() {
+			if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
 				return nil
 			}
 			time.Sleep(100 * time.Millisecond)
 		}
-		return kill(g.cmd.Process)
+		return kill(cmd.Process)
 	}
 	return nil
 }
