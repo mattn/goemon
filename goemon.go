@@ -115,7 +115,11 @@ func compilePattern(pattern string) (*regexp.Regexp, error) {
 					buf.WriteString(`[^/]+`)
 				}
 			} else if rs[i] == '?' {
-				buf.WriteString(`\S`)
+				if runtime.GOOS == "windows" {
+					buf.WriteString(`[^/\\]`)
+				} else {
+					buf.WriteString(`[^/]`)
+				}
 			} else {
 				buf.WriteString(fmt.Sprintf(`[\x{%x}]`, rs[i]))
 			}
