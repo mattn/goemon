@@ -36,7 +36,7 @@ func (g *Goemon) internalCommand(command, file string) bool {
 				return false
 			}
 			g.Logger.Println("sleeping", s+"ms")
-			time.Sleep(time.Duration(si) * time.Microsecond)
+			time.Sleep(time.Duration(si) * time.Millisecond)
 		}
 		return true
 	case ":fizzbuzz":
