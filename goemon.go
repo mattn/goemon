@@ -202,6 +202,7 @@ func (g *Goemon) watch() error {
 	if err != nil {
 		return err
 	}
+	defer g.fsw.Close()
 	g.fsw.Add(g.File, fswatcher.All)
 
 	root, err := filepath.Abs(".")
