@@ -38,6 +38,29 @@ func TestCompilePattern(t *testing.T) {
 	}
 }
 
+func TestCompilePatternQuestion(t *testing.T) {
+	re, err := compilePattern(`/path/a?c.txt`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	match := `/path/abc.txt`
+	nomatch := `/path/a/c.txt`
+	if runtime.GOOS == "windows" {
+		if p, err := filepath.Abs(match); err == nil {
+			match = p
+		}
+		if p, err := filepath.Abs(nomatch); err == nil {
+			nomatch = p
+		}
+	}
+	if !re.MatchString(match) {
+		t.Fatalf("? should match a single character: %v", re.String())
+	}
+	if re.MatchString(nomatch) {
+		t.Fatalf("? should not match a path separator: %v", re.String())
+	}
+}
+
 func TestJsmin(t *testing.T) {
 	dir, err := ioutil.TempDir(os.TempDir(), "goemon")
 	if err != nil {
