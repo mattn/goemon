@@ -64,6 +64,14 @@ func TestJsmin(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	if !g.minify(filepath.Join(dir, "foo.min.js")) {
+		t.Fatal("Should ignore already minified file")
+	}
+	_, err = os.Stat(filepath.Join(dir, "foo.min.min.js"))
+	if !os.IsNotExist(err) {
+		t.Fatal("Should not minify already minified file")
+	}
 }
 
 func TestSpawn(t *testing.T) {
