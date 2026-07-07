@@ -151,6 +151,11 @@ func (g *Goemon) minify(name string) bool {
 		m.AddFunc("text/css", css.Minify)
 		if err := m.Minify("text/css", out, in); err != nil {
 			g.Logger.Println(err)
+			out.Close()
+			return false
+		}
+		if err := out.Close(); err != nil {
+			g.Logger.Println(err)
 			return false
 		}
 		return true
